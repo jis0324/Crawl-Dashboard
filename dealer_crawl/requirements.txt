@@ -1,0 +1,9 @@
+scrapy
+psutil
+requests
+scrapy-rotated-proxy
+scrapy-user-agents
+pandas
+selenium
+beautifulsoup4
+dataclasses

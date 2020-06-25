@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item active">Domain Dashboard</li>
+{% endblock %}
+
+{% block content %}
+  <table class="table d-none" id="domains_tbl">
+    {% csrf_token %}
+    <thead class="thead-inverse">
+      <tr>
+        <th>Dealer ID</th>
+        <th>Dealer Name</th>
+        <th>City</th>
+        <th>State</th>
+        <th>Zip</th>
+        <th>Website</th>
+        <th>Category</th>
+        <th>Crawl Type</th>
+        <th>Test</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in data %}
+        <tr>
+          <td><a onclick='redirect(event);' href="{% url 'domain_summary' row.domain today_date %}">{{row.dealer_id}}</a></td>
+          <td>{{row.dealer_name}}</td>
+          <td>{{row.city}}</td>
+          <td>{{row.state}}</td>
+          <td>{{row.zip}}</td>
+          <td><a href="{{row.realurl}}" target="blank">{{row.website}}</a></td>
+          <td>{{row.category}}</td>
+          <td>{{row.crawl_type}}</td>
+          <td class="d-flex">
+            <button class="btn btn-info {% if row.test_status == 'crawling' %} d-none {% endif %} test-btn mr-3" data-dealer="{{ row.dealer_id}}" data-name=" {{ row.dealer_name }}" data-city="{{ row.city }}" data-state="{{ row.state }}" data-zip="{{ row.zip }}" data-website="{{ row.website }}" data-category="{{ row.category }}" data-type="{{ row.crawl_type }}">Test</button>
+            <button class="btn btn-danger {% if row.test_status == 'notcrawling' %} d-none {% endif %} cancel-btn mr-3" data-dealer="{{ row.dealer_id }}">Cancel</button>
+            <a onclick='redirect(event);' href="{% url 'view_test' row.dealer_id %}" class="btn btn-success {% if row.history_status == 'nothistory' %} d-none {% endif %} view-btn" data-dealer="{{ row.dealer_id}}">View</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

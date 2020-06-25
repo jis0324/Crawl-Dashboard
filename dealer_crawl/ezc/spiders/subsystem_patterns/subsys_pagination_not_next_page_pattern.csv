@@ -1,0 +1,2 @@
+domain,pattern,tag,attr,value,state,child_tag,child_attr,child_value,child_state
+capecodautobrokers.com,"<p class=""paging"">",p,class,paging,equal,a,class,convertUrl,equal

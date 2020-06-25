@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  {{ domain }}
+{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a onclick='redirect(event);' href="{% url 'domain_index' %}">Domain Dashboard</a></li>
+  <li class="breadcrumb-item active"><a onclick='redirect(event);' href="{% url 'domain_summary' domain today_date %}">{{ domain }}</a></li>
+  <li class="breadcrumb-item active">{{ crawl_date }}</li>
+{% endblock %}
+
+{% block custom_search %}
+<form class="form-inline w-100 justify-content-end mb-4" method="POST" action="{% url 'domain_summary' domain crawl_date %}">
+  {% csrf_token %}
+  <label class="control-label mr-3" for="selected_date">Select Date : </label>
+  <input class="form-control mr-sm-2" type="date" id="selected_date" name="selected_date" max="{{ today_date }}" value="{{ crawl_date }}" style="width: 220px;">
+  <button class="btn btn-success" id="submit_btn" type="submit">Search</button>
+</form>
+{% endblock %}
+
+{% block content %}
+    
+  <table class="table" id="domain_summary_tbl">
+    <thead class="thead-inverse">
+      <tr>
+        <th>Dealer ID</th>
+        <th>Dealer Name</th>
+        <th>City</th>
+        <th>State / Province</th>
+        <th>Zip</th>
+        <th>Domain</th>
+        <th>Vin Count</th>
+        <th>Error State</th>
+        <th>Host Address</th>
+        <th>Start Time</th>
+        <th>End Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if data %}
+        {% for row in data %}
+          <tr>
+            <td>{{ row.dealer_id }}</td>
+            <td>{{ row.dealer_name }}</td>
+            <td>{{ row.city }}</td>
+            <td>{{ row.state }}</td>
+            <td>{{ row.zip }}</td>
+            <td>{{ row.domain }}</td>
+            <td>{{ row.vin_count }}</td>
+            <td>{{ row.error_state }}</td>
+            <td><a onclick='redirect(event);' href="{% url 'crawl_inventory' row.host_address crawl_date row.domain %}" alt="To Inventory">{{ row.host_address }}</a></td>
+            <td>{{ start_time }}</td>
+            <td>{{ end_time }}</td>
+          </tr>
+        {% endfor %}
+      {% else %}
+        <tr>
+          <td class="text-center" colspan="10">No Data, Please select date.</td>
+        </tr>
+      {% endif %}
+    </tbody>
+  </table>
+  
+{% endblock %} 

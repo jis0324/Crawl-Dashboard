@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  {{ domain }}
+{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a onclick='redirect(event);' href="{% url 'domain_index' %}">Domain Dashboard</a></li>
+  <li class="breadcrumb-item active">View Test</li>
+  <li class="breadcrumb-item active">{{ dealer }}</li>
+{% endblock %}
+
+{% block content %}
+    
+  <table class="table" id="view_test_tbl">
+    <thead class="thead-inverse">
+      <tr>
+        <th>Dealer ID</th>
+        <th>Start Time</th>
+        <th>End Time</th>
+        <th>Status</th>
+        <th>Summary File Name</th>
+        <th>Inventory File Name</th>
+        <th>User</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in data %}
+        <tr>
+          <td><a onclick='redirect(event);' href="{% url 'test_detail' dealer row.id %}">{{ row.dealer }}</a></td>
+          <td>{{ row.start_time }}</td>
+          <td>{{ row.end_time }}</td>
+          <td>{{ row.status }}</td>
+          <td>{{ row.summary_file }}</td>
+          <td>{{ row.inventory_file }}</td>
+          <td>{{ row.user }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  
+{% endblock %} 

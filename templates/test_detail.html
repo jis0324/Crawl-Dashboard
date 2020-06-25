@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}
+  {{ domain }}
+{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a onclick='redirect(event);' href="{% url 'domain_index' %}">Domain Dashboard</a></li>
+<li class="breadcrumb-item active"><a onclick='redirect(event);' href="{% url 'view_test' dealer %}">View Test</a></li>
+<li class="breadcrumb-item active">Test Detail</li>
+<li class="breadcrumb-item active">{{ id }}</li>
+{% endblock %}
+
+{% block content %}
+    
+  <table class="table mb-5" id="test_view_detail_summary_tbl">
+    <thead class="thead-inverse">
+      <tr>
+        <th>Dealer ID</th>
+        <th>Dealer Name</th>
+        <th>City</th>
+        <th>State</th>
+        <th>Zip</th>
+        <th>Domain</th>
+        <th>Vin Count</th>
+        <th>Error State</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if summary_data %}
+        {% for row in summary_data %}
+          <tr>
+            <td>{{ row.dealer_id }}</td>
+            <td>{{ row.dealer_name }}</td>
+            <td>{{ row.city }}</td>
+            <td>{{ row.state }}</td>
+            <td>{{ row.zip }}</td>
+            <td>{{ row.url }}</td>
+            <td>{{ row.vin_count }}</td>
+            <td>{{ row.error_state }}</td>
+          </tr>
+        {% endfor %}
+      {% else %}
+        <tr>
+          <td class="text-center" colspan="9">No Data</td>
+        </tr>
+      {% endif %}
+    </tbody>
+  </table>
+  
+  <table class="table mt-5" id="test_view_detail_inventory_tbl">
+    <thead class="thead-inverse">
+      <tr>
+        <th>VIN</th>
+        <th>Price</th>
+        <th>Mileage</th>
+        <th>Type</th>
+        <th>Title</th>
+        <th>Year</th>
+        <th>Make</th>
+        <th>Model</th>
+        <th>Trim</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in inventory_data %}
+        <tr>
+          <td>{{ row.vin }}</td>
+          <td>{{ row.price }}</td>
+          <td>{{ row.mileage }}</td>
+          <td>{{ row.type }}</td>
+          <td>{{ row.title }}</td>
+          <td>{{ row.year }}</td>
+          <td>{{ row.make }}</td>
+          <td>{{ row.model }}</td>
+          <td>{{ row.trim }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %} 
