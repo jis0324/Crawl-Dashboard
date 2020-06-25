@@ -155,12 +155,18 @@ def log_to_dict(arg):
     temp_dict['elapsed_time'] = row['Elapsed Time']
     temp_dict['dealer_count'] = row['Total Dealer Count']
     temp_dict['inventory_count'] = row['Total Inventory Count']
+    temp_dict['crawl_type'] = ''
     if index == 0:
       temp_dict['url_count'] = row['URL Range']
     else:
       url_ranges = row['URL Range'].split(':')
       total_count = 0
       if len(url_ranges) > 1:
+        if url_ranges[0].strip() == 'spider':
+          temp_dict['crawl_type'] = 'scrapy'
+        elif url_ranges[0].strip() == 'selenium':
+          temp_dict['crawl_type'] = 'selenium'
+        # temp_dict['crawl_type'] = url_ranges[0]
         urls = url_ranges[1].split(',')
         for url in urls:
           start_url = int(url.split('~')[0])
