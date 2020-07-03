@@ -251,7 +251,7 @@ def get_data_from_summary(domain, crawl_date):
     files = []
     files = [i for i in os.listdir(summary_path) if os.path.isfile(os.path.join(summary_path,i)) and summary_csv_prefix in i]
     if files:
-      summary_file = files[0]
+      summary_file = files[-1]
       with open(summary_path + summary_file, 'r', encoding="latin1", errors="ignore") as summary:
         crawl_summary_data = list(csv.DictReader(summary))
     

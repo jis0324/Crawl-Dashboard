@@ -4,11 +4,6 @@ import datetime
 from django.shortcuts import render, redirect
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-import pymongo
-
-mongoclient = pymongo.MongoClient("mongodb://localhost:27017/")
-db = mongoclient["dealer_crawl_db"]
-daily_log_collection = db['daily_log']
 
 @login_required
 def index(request):
@@ -19,9 +14,18 @@ def index(request):
 
   if request.method == 'POST':
     crawl_date = request.POST['selected_date']
-    crawl_log_data = get_data_from_daily_log(crawl_date)
+    if crawl_date == today_date:
+      crawl_date, crawl_log_data = get_data_from_today_log()
+    else:
+      crawl_log_data = get_data_from_daily_log(crawl_date)
   else:
     crawl_date, crawl_log_data = get_data_from_today_log()
+    if not crawl_date:
+      crawl_date = today_date
+      
+    ##### if today_log.csv not exist, import data from daily_log_***.csv #####
+    if not crawl_log_data:
+      crawl_log_data = get_data_from_daily_log(crawl_date)
       
   data = log_to_dict(crawl_log_data)
 
@@ -57,31 +61,50 @@ def view_inventory(request, host, crawl_date, domain):
   data = inventory_to_dict(crawl_inventory_data)
   return render(request, 'crawler_inventory.html', {'data': data, 'today_date' : today_date, 'crawl_date' : crawl_date, 'host_name' : host, 'domain' : domain})
 
+
 def get_data_from_daily_log(crawl_date):
-  global daily_log_collection
-
+  daliy_log_csv = settings.SERVER_DIR + '/output/daily_log_' + crawl_date.split('-')[0] + crawl_date.split('-')[1] + '.csv'
+  daily_log_exist = os.path.isfile(daliy_log_csv)
   crawl_log_data = list()
+  if daily_log_exist:
+    daily_log_data = list()
+    with open(daliy_log_csv, 'r') as daily_log_file:
+      daily_log_data = list(csv.DictReader(daily_log_file))
+    
+    today_log_flag = False
+    for row in daily_log_data:
+      
+      if today_log_flag:
+        if row['Date'] == '':
+          crawl_log_data.append(row)
+        else:
+          today_log_flag = False
+          break
+      
+      if crawl_date in row['Date']:
+        today_log_flag = True
+        crawl_log_data.append(row)
 
-  query = { "Date": { "$regex": "^" + crawl_date } }
-  crawl_log_data = list(daily_log_collection.find(query))
   return crawl_log_data
-  
+
 def get_data_from_today_log():
-  global daily_log_collection
 
   crawl_log_data = list()
-  
-  today_date = datetime.date.today()
-  yesterday_date = today_date - datetime.timedelta(days=1)
+  crawl_date = ''
+  today_log_csv = settings.SERVER_DIR + '/output/today_log.csv'
+  today_log_exist = os.path.isfile(today_log_csv)
 
-  query = { "Date": { "$regex": "^" + str(today_date) } }
-  if daily_log_collection.count_documents(query) > 0:
-    crawl_log_data = list(daily_log_collection.find(query))
-    return str(today_date), crawl_log_data
-  else:
-    query = { "Date": { "$regex": "^" + str(yesterday_date) } }
-    crawl_log_data = list(daily_log_collection.find(query))
-    return str(yesterday_date), crawl_log_data
+  ##### if today_log.csv exist, import data from today_log.csv #####
+  if today_log_exist:
+    with open(today_log_csv, 'r') as today_log_file:
+      crawl_log_data = list(csv.DictReader(today_log_file))
+
+    try:
+      crawl_date = crawl_log_data[0]['Date'].split('T')[0]
+    except:
+      pass
+
+  return crawl_date, crawl_log_data
 
 def get_data_from_summary(host, crawl_date):
   return_data = list()
@@ -93,7 +116,7 @@ def get_data_from_summary(host, crawl_date):
     files = []
     files = [i for i in os.listdir(summary_path) if os.path.isfile(os.path.join(summary_path,i)) and summary_csv_prefix in i]
     if files:
-      summary_file = files[-1]
+      summary_file = files[0]
       with open(summary_path + summary_file, 'r', encoding="latin1", errors="ignore") as summary:
         crawl_summary_data = list(csv.DictReader(summary))
     
@@ -112,7 +135,7 @@ def get_data_from_inventory(host, crawl_date, domain):
     files = []
     files = [i for i in os.listdir(summary_path) if os.path.isfile(os.path.join(summary_path,i)) and summary_csv_prefix in i]
     if files:
-      summary_file = files[-1]
+      summary_file = files[0]
       
       with open(summary_path + summary_file, 'r', encoding="latin1", errors="ignore") as summary:
         crawl_inventory_data = list(csv.DictReader(summary))
@@ -136,9 +159,9 @@ def log_to_dict(arg):
     temp_dict['inventory_count'] = row['Total Inventory Count']
     temp_dict['crawl_type'] = ''
     if index == 0:
-      temp_dict['url_count'] = str(row['URL Range'])
+      temp_dict['url_count'] = row['URL Range']
     else:
-      url_ranges = str(row['URL Range']).split(':')
+      url_ranges = row['URL Range'].split(':')
       total_count = 0
       if len(url_ranges) > 1:
         if url_ranges[0].strip() == 'spider':
