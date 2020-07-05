@@ -9,6 +9,7 @@ patterns,attr,value,state,child_tag,contain_text
 "<div id=""black""",refreshData,black,equal,,
 "<a id=""moreVehiclesLink""",id,moreVehiclesLink,equal,/span,
 "<i class=""fa fa-angle-right""",class,fa fa-angle-right,equal,,
+"class=""button next-page""",class,button next-page,equal,,
 "class=""rdpPageNext""",class,rdpPageNext,equal,,
 "class=""fa fa-angle-right stat-arrow-next""",class,fa fa-angle-right stat-arrow-next,equal,,
 "class=""ar_navbtnr""",class,ar_navbtnr,equal,,Next
@@ -16,6 +17,7 @@ patterns,attr,value,state,child_tag,contain_text
 "class=""fa fa-caret-right""",class,fa fa-caret-right,equal,,
 "id=""comp-iijxwlj5showMore""",id,comp-iijxwlj5showMore,equal,,
 "class=""fa fa-arrow-circle-o-right""",class,fa fa-arrow-circle-o-right,equal,,
+"class=""breadcrumb-pages-list""",class,breadcrumb-pages-list,equal,/a[last()],
 "class=""ion-ios-arrow-forward""",class,ion-ios-arrow-forward,equal,,
 "class=""fas fa-chevron-right""",class,fas fa-chevron-right,equal,,
 "class=""page-link next btn btn-default""",class,page-link next btn btn-default,equal,,

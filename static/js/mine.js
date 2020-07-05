@@ -40,6 +40,7 @@ $(document).ready(function () {
         'dealer_website': $(this).data('website'),
         'dealer_category': $(this).data('category'),
         'dealer_type': $(this).data('type'),
+        'dealer_redirect': $(this).data('redirect'),
       },
       success: function (result) {
         let response = JSON.parse(result);

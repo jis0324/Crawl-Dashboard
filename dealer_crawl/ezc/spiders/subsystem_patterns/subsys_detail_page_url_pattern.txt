@@ -1,3 +1,4 @@
+/nph/ctd/d/
 invdetail.aspx?id=
 /trucks/?vid=
 trucks?vid=

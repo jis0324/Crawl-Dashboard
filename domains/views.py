@@ -58,6 +58,7 @@ def test_domain(request):
       save_data.save()
 
       input_csv_path = settings.BASE_DIR + '/dealer_crawl/ezc/spiders/input.csv'
+
       input_dict = {
         "Dealer ID" : request.POST['dealer_id'],
         "Dealer Name" : request.POST['dealer_name'],
@@ -67,6 +68,7 @@ def test_domain(request):
         "Website" : make_url(request.POST['dealer_website']),
         "Category" : request.POST['dealer_category'],
         "Crawl Type" : request.POST['dealer_type'],
+        "Redirect URLs" : request.POST['dealer_redirect'],
         "id" : save_data.id
       }
 
@@ -74,7 +76,7 @@ def test_domain(request):
         os.remove(input_csv_path)
       
       with open(input_csv_path, 'w', newline="") as input_file:
-        fieldnames = ["Dealer ID", "Dealer Name", "City", "State / Province", "Zip", "Website", "Category", "Crawl Type", "id",]
+        fieldnames = ["Dealer ID", "Dealer Name", "City", "State / Province", "Zip", "Website", "Category", "Crawl Type", "Redirect URLs", "id",]
         writer = csv.DictWriter(input_file, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerow(input_dict)
@@ -162,6 +164,11 @@ def input_to_dict(arg1, arg2):
     temp_dict['realurl'] = make_url(row['Website'])
     temp_dict['category'] = row['Category']
     temp_dict['crawl_type'] = row['Crawl Type']
+
+    redirect_list = list()
+    for item in row['Redirect URLs'].split(','):
+      redirect_list.append(make_url(item))
+    temp_dict['redirect_url'] = redirect_list
     
     test_status = 'notcrawling'
     history_status = 'nothistory'
@@ -268,6 +275,6 @@ def make_domain(url):
   return url
 
 def make_url(url):
-  if not "http" in url:
+  if not "http" in url and url:
     url = "http://" + url
   return url

@@ -67,3 +67,4 @@ inventory-listing,,"class=""inventory-listing",div,class,inventory-listing,conta
 ,content,"id=""content""",div,id,content,equal,,
 row grid-row,,"class=""row grid-row""",div,class,row grid-row,equal,,
 ,c1dmpinlineContent-gridContainer,"id=""c1dmpinlineContent-gridContainer""",div,id,c1dmpinlineContent-gridContainer,equal,,
+,vehicles,"id=""vehicles""",div,id,vehicles,equal,,

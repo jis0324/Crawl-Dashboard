@@ -1705,15 +1705,29 @@ def main():
         with open(filename3, "r") as input_file:
             input_data = csv.DictReader(input_file)
             for row in input_data:
-                crawl_type =row['Crawl Type']
-                dealer_ids.append(row['Dealer ID'])
-                dealer_names.append(row['Dealer Name'])
-                dealer_cities.append(row['City'])
-                dealer_states.append(row['State / Province'])
-                dealer_zips.append(row['Zip'])
-                urls.append(row['Website'])
-                domains.append(make_domain(row['Website']))
-                id = row['id']
+                if row['Redirect URLs'] == '':
+                    crawl_type =row['Crawl Type']
+                    dealer_ids.append(row['Dealer ID'])
+                    dealer_names.append(row['Dealer Name'])
+                    dealer_cities.append(row['City'])
+                    dealer_states.append(row['State / Province'])
+                    dealer_zips.append(row['Zip'])
+                    urls.append(row['Website'])
+                    domains.append(make_domain(row['Website']))
+                    id = row['id']
+                else:
+                    redirect_urls = row['Redirect URLs'].split(',')
+                    for item in redirect_urls:
+                        if item != '':
+                            crawl_type =row['Crawl Type']
+                            dealer_ids.append(row['Dealer ID'])
+                            dealer_names.append(row['Dealer Name'])
+                            dealer_cities.append(row['City'])
+                            dealer_states.append(row['State / Province'])
+                            dealer_zips.append(row['Zip'])
+                            urls.append(item)
+                            domains.append(make_domain(item))
+                            id = row['id']
     
     now = datetime.datetime.now()
     now_time = now.strftime("%Y-%m-%d-%H-%M-%S")
