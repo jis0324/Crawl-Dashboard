@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item active">Unexpected Urls</li>
+{% endblock %}
+
+{% block custom_search %}
+<form class="form-inline w-100 justify-content-end mb-4" method="POST" action="{% url 'unexpected_urls' %}">
+  {% csrf_token %}
+  <label class="control-label mr-3" for="selected_date">Select Date : </label>
+  <input class="form-control mr-sm-2" type="date" id="selected_date" name="selected_date" max="{{ today_date }}" value="{{ crawl_date }}" style="width: 220px;">
+  <button class="btn btn-success" id="submit_btn" type="submit">Search</button>
+</form>
+{% endblock %}
+{% block content %}
+  <table class="table" id="crawlers_tbl">
+    <thead class="thead-inverse">
+      <tr>
+        <th>Date</th>
+        <th>Dealer ID</th>
+        <th>Dealer Name</th>
+        <th>Dealer Domain</th>
+        <th>Host</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in data %}
+        <tr>
+          <td>{{row.date}}</td>
+          <td>{{row.dealer_id}}</td>
+          <td>{{row.dealer_name}}</td>
+          <td>{{row.dealer_domain}}</td>
+          <td>{{row.host}}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

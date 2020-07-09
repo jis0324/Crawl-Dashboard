@@ -89,6 +89,42 @@ $(document).ready(function () {
     }
   });
 
+  $('#crawler_summary_tbl').on('click', '.edit-btn', function() {
+    $('#edit_domain_modal #edit_dealer_id').val($(this).data('dealer'));
+    $('#edit_domain_modal #edit_dealer_name').val($(this).data('name'));
+    $('#edit_domain_modal #edit_dealer_domain').val($(this).data('domain'));
+    $('#edit_domain_modal #edit_err_state').val($(this).data('category'));
+    $('#edit_domain_modal').modal();
+  });
+
+  $('#edit_domain_form').submit(function () {
+    event.preventDefault();
+    show_loading();
+    let dealer_id = $('#edit_domain_modal #edit_dealer_id').val();
+    let crawl_type = $('#edit_domain_modal #edit_crawl_type').val();
+    let crawl_type_reason = $('#edit_domain_modal #edit_crawl_type_reason').val();
+
+    $.ajax({
+      type: "POST",
+      url: "/domains/update_input/",
+      data: {
+        'csrfmiddlewaretoken' : $('#edit_domain_form input[name="csrfmiddlewaretoken"]').val(),
+        'dealer_id': dealer_id,
+        'crawl_type': crawl_type,
+        'crawl_type_reason': crawl_type_reason,
+      },
+      success: function (result) {
+        if (result == 'success') {
+          $('#edit_domain_modal').modal('hide');
+        } else {
+          alert('Raised Some Error! Please try again.');
+        }
+        hide_loading();
+      }
+    });
+
+  });
+
   $('#domains_tbl').removeClass('d-none');
 
   hide_loading();

@@ -150,6 +150,38 @@ def test_detail(request, dealer_id, id):
 
   return render(request, 'test_detail.html', { 'summary_data' : summary_data, 'inventory_data' : inventory_data, 'id':id, 'dealer':dealer_id})
 
+@login_required
+def update_input(request):
+  if request.method == 'POST':
+    try:
+      dealer_id = request.POST['dealer_id']
+      dealer_type = request.POST['crawl_type']
+      dealer_reason = request.POST['crawl_type_reason']
+
+      if os.path.isfile(settings.SERVER_DIR + '/input.csv'):
+        temp_list = list()
+        with open(settings.SERVER_DIR + '/input.csv', 'r', encoding="latin1", errors="ignore") as input_file:
+          temp_list = list(csv.DictReader(input_file))
+
+        with open(settings.SERVER_DIR + '/input.csv', 'w', encoding="latin1", errors="ignore") as input_file:
+          fieldnames = ["Dealer ID", "Dealer Name", "City", "State / Province", "Zip", "Website", "Category", "Crawl Type", "Type Reasone", "Redirect URLs"]
+          writer = csv.DictWriter(input_file, fieldnames=fieldnames)
+          writer.writeheader()
+          for row_dict in temp_list:
+            if row_dict["Dealer ID"] == dealer_id:
+              row_dict["Crawl Type"] = dealer_type
+              if dealer_reason:
+                row_dict["Type Reasone"] = dealer_reason
+            writer.writerow(row_dict)
+      return HttpResponse('success')
+    except Exception as err:
+      print(err)
+      return HttpResponse('failed')
+
+
+
+    print( dealer_id, dealer_type, dealer_reason )
+
 def input_to_dict(arg1, arg2):
   return_data = list()
   for row in arg1:
@@ -164,11 +196,13 @@ def input_to_dict(arg1, arg2):
     temp_dict['realurl'] = make_url(row['Website'])
     temp_dict['category'] = row['Category']
     temp_dict['crawl_type'] = row['Crawl Type']
+    temp_dict['redirect_url'] = row['Redirect URLs']
 
     redirect_list = list()
-    for item in row['Redirect URLs'].split(','):
-      redirect_list.append(make_url(item))
-    temp_dict['redirect_url'] = redirect_list
+    if row['Redirect URLs']:
+      for item in row['Redirect URLs'].split(','):
+        redirect_list.append(make_url(item))
+    temp_dict['redirect_url_list'] = redirect_list
     
     test_status = 'notcrawling'
     history_status = 'nothistory'

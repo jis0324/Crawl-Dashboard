@@ -36,6 +36,9 @@
                 <li class="nav-item">
                   <a onclick='redirect(event);' class="nav-link" href="{% url 'domain_index' %}">Domains</a>
                 </li>
+                <li class="nav-item">
+                  <a onclick='redirect(event);' class="nav-link" href="{% url 'unexpected_urls' %}">Unexpected URLs</a>
+                </li>
                 <li class="nav-item dropdown">
                   <a class="nav-link dropdown-toggle" href="#" id="userMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     {{ user.username }}

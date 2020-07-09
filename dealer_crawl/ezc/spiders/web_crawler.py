@@ -1677,7 +1677,7 @@ def main():
     urls = list()
     domains = list()
     crawl_type = ''
-    id = ''
+    row_id = ''
 
     filename1 = base_dir + "/exclude_patterns.csv"
     file_exists = os.path.isfile( filename1 )
@@ -1705,7 +1705,9 @@ def main():
         with open(filename3, "r") as input_file:
             input_data = csv.DictReader(input_file)
             for row in input_data:
-                if row['Redirect URLs'] == '':
+                print
+                if row['Redirect URLs'].strip() == '':
+                    print('***************************')
                     crawl_type =row['Crawl Type']
                     dealer_ids.append(row['Dealer ID'])
                     dealer_names.append(row['Dealer Name'])
@@ -1714,8 +1716,11 @@ def main():
                     dealer_zips.append(row['Zip'])
                     urls.append(row['Website'])
                     domains.append(make_domain(row['Website']))
-                    id = row['id']
+                    row_id = row['id']
                 else:
+                    print('#########################')
+                    print(row['Redirect URLs'])
+                    print(len(row['Redirect URLs']))
                     redirect_urls = row['Redirect URLs'].split(',')
                     for item in redirect_urls:
                         if item != '':
@@ -1727,8 +1732,8 @@ def main():
                             dealer_zips.append(row['Zip'])
                             urls.append(item)
                             domains.append(make_domain(item))
-                            id = row['id']
-    
+                            row_id = row['id']
+
     now = datetime.datetime.now()
     now_time = now.strftime("%Y-%m-%d-%H-%M-%S")
 
@@ -1760,7 +1765,7 @@ def main():
     now = datetime.datetime.now()
     end_time = now.strftime("%Y-%m-%d-%H-%M-%S")
     #Updating the records
-    sql = "UPDATE domains_test SET end_time = '" + str(end_time) + "', status = 'complete', summary_file='" + str(summary_csv_name) + "', inventory_file='" + str(inventory_csv_name) + "' WHERE id=" + id
+    sql = "UPDATE domains_test SET end_time = '" + str(end_time) + "', status = 'complete', summary_file='" + str(summary_csv_name) + "', inventory_file='" + str(inventory_csv_name) + "' WHERE id=" + row_id
     
     cursor.execute(sql)
 

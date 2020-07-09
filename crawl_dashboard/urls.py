@@ -14,13 +14,15 @@ urlpatterns = [
     url(r'^crawlers/$', crawl_views.index, name='crawl_index'),
     url(r'^$', main_views.index, name='home'),
     url(r'^crawlers/(?P<host>[0-9\.]+)/(?P<crawl_date>[0-9\-]+)/$', crawl_views.view_summary, name='crawl_summary'),
-    url(r'^crawlers/(?P<host>[0-9\.]+)/(?P<crawl_date>[0-9\-]+)/(?P<domain>[A-Za-z0-9\&\-\_\.]+)/$', crawl_views.view_inventory, name='crawl_inventory'),
+    url(r'^crawlers/(?P<host>[0-9\.]+)/(?P<crawl_date>[0-9\-]+)/(?P<domain>[A-Za-z0-9\&\-\_\.\s]+)/$', crawl_views.view_inventory, name='crawl_inventory'),
     url(r'^domains/$', domain_views.index, name='domain_index'),
-    url(r'^domains/(?P<domain>[A-Za-z0-9\-\_\.\&]+)/(?P<crawl_date>[0-9\-]+)/$', domain_views.domain_summary, name='domain_summary'),
+    url(r'^domains/(?P<domain>[A-Za-z0-9\-\_\.\&\s]+)/(?P<crawl_date>[0-9\-]+)/$', domain_views.domain_summary, name='domain_summary'),
     url(r'^domains/test_domain/$', domain_views.test_domain, name='test_domain'),
     url(r'^domains/test_cancel/$', domain_views.test_cancel, name='test_cancel'),
     url(r'^domains/view_test/(?P<dealer_id>[A-Za-z0-9\-\_\.\&]+)/$', domain_views.view_test, name='view_test'),
     url(r'^domains/view_test/(?P<dealer_id>[A-Za-z0-9\-\_\.\&]+)/test_detail/(?P<id>[0-9]+)/$', domain_views.test_detail, name='test_detail'),
+    url(r'^domains/update_input/$', domain_views.update_input, name='update_input'),
+    url(r'^unexpected_urls/$', main_views.unexpected_urls, name='unexpected_urls'),
 
     # accounts
     url(r'^signup/$', accounts_views.signup, name='signup'),
