@@ -12,7 +12,7 @@ import psutil
 @login_required
 def index(request):
   now = datetime.now()
-  today_date = now.strftime("%Y") + '-' + now.strftime("%m") + '-' + now.strftime("%d")
+  today_date = now.strftime("%Y-%m-%d")
 
   domain_list = list()
   if os.path.isfile(settings.SERVER_DIR + '/input.csv'):
@@ -27,7 +27,7 @@ def index(request):
 @login_required
 def domain_summary(request, domain, crawl_date):
   now = datetime.now()  
-  today_date = now.strftime("%Y") + '-' + now.strftime("%m") + '-' + now.strftime("%d")
+  today_date = now.strftime("%Y-%m-%d")
   domain_summary_data = list()
   if request.method == 'POST':
     crawl_date = request.POST['selected_date']
@@ -151,10 +151,35 @@ def test_detail(request, dealer_id, id):
   return render(request, 'test_detail.html', { 'summary_data' : summary_data, 'inventory_data' : inventory_data, 'id':id, 'dealer':dealer_id})
 
 @login_required
+def get_dealer(request):
+  if request.method == 'POST':
+    try:
+      dealer_id = request.POST['dealer_id']
+      if os.path.isfile(settings.SERVER_DIR + '/input.csv'):
+        with open(settings.SERVER_DIR + '/input.csv', 'r', encoding="latin1", errors="ignore") as summary:
+          dealer_list = csv.DictReader(summary)
+          for dealer in dealer_list:
+            if dealer['Dealer ID'] == dealer_id:
+              return_dict = {
+                'dealer_id' : dealer['Dealer ID'],
+                'dealer_name' : dealer['Dealer Name'],
+                'dealer_site' : dealer['Website'],
+                'dealer_type' : dealer['Crawl Type'],
+                'dealer_type_reason' : dealer['Type Reasone'],
+                'dealer_redirect' : dealer['Redirect URLs'],
+              }
+              return HttpResponse(json.dumps(return_dict))
+      return HttpResponse('not_found')
+    except Exception as err:
+      print(err)
+      return HttpResponse('failed')
+
+@login_required
 def update_input(request):
   if request.method == 'POST':
     try:
       dealer_id = request.POST['dealer_id']
+      redirect_urls = request.POST['redirect_urls']
       dealer_type = request.POST['crawl_type']
       dealer_reason = request.POST['crawl_type_reason']
 
@@ -170,8 +195,8 @@ def update_input(request):
           for row_dict in temp_list:
             if row_dict["Dealer ID"] == dealer_id:
               row_dict["Crawl Type"] = dealer_type
-              if dealer_reason:
-                row_dict["Type Reasone"] = dealer_reason
+              row_dict["Type Reasone"] = dealer_reason
+              row_dict["Redirect URLs"] = redirect_urls
             writer.writerow(row_dict)
       return HttpResponse('success')
     except Exception as err:

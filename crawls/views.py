@@ -15,7 +15,7 @@ def index(request):
 
   crawl_log_data = list()
   now = datetime.datetime.now()  
-  today_date = now.strftime("%Y") + '-' + now.strftime("%m") + '-' + now.strftime("%d")
+  today_date = now.strftime("%Y-%m-%d")
 
   if request.method == 'POST':
     crawl_date = request.POST['selected_date']
@@ -30,7 +30,7 @@ def index(request):
 @login_required
 def view_summary(request, host, crawl_date):
   now = datetime.datetime.now()  
-  today_date = now.strftime("%Y") + '-' + now.strftime("%m") + '-' + now.strftime("%d")
+  today_date = now.strftime("%Y-%m-%d")
   crawl_summary_data = list()
   if request.method == 'POST':
     crawl_date = request.POST['selected_date']
@@ -44,7 +44,7 @@ def view_summary(request, host, crawl_date):
 @login_required
 def view_inventory(request, host, crawl_date, domain):
   now = datetime.datetime.now()
-  today_date = now.strftime("%Y") + '-' + now.strftime("%m") + '-' + now.strftime("%d")
+  today_date = now.strftime("%Y-%m-%d")
   crawl_inventory_data = list()
 
   # if request.method == 'POST':
@@ -56,6 +56,21 @@ def view_inventory(request, host, crawl_date, domain):
   
   data = inventory_to_dict(crawl_inventory_data)
   return render(request, 'crawler_inventory.html', {'data': data, 'today_date' : today_date, 'crawl_date' : crawl_date, 'host_name' : host, 'domain' : domain})
+
+@login_required
+def total_summary(request, crawl_date):
+  now = datetime.datetime.now()
+  today_date = now.strftime("%Y-%m-%d")
+  crawl_summary_data = list()
+  if request.method == 'POST':
+    crawl_date = request.POST['selected_date']
+    return redirect('total_summary', crawl_date=crawl_date)
+  else:
+    crawl_summary_data = get_total_summary(crawl_date)
+  
+  data = summary_to_dict(crawl_summary_data)
+  
+  return render(request, 'total_summary.html', {'data': data, 'today_date' : today_date, 'crawl_date' : crawl_date, 'host_name' : "104.238.234.40"})
 
 def get_data_from_daily_log(crawl_date):
   global daily_log_collection
@@ -121,6 +136,21 @@ def get_data_from_inventory(host, crawl_date, domain):
       if row['DOMAIN'] == domain:
         return_data.append(row)
 
+  return return_data
+
+def get_total_summary(crawl_date):
+  return_data = list()
+  summary_path = settings.SERVER_DIR + '/output/' + crawl_date + '/'
+  
+  if os.path.exists(summary_path):
+    summary_csv_prefix = 'summary_' + crawl_date
+    files = []
+    files = [i for i in os.listdir(summary_path) if os.path.isfile(os.path.join(summary_path,i)) and summary_csv_prefix in i]
+    if files:
+      summary_file = files[-1]
+      with open(summary_path + summary_file, 'r', encoding="latin1", errors="ignore") as summary:
+        return_data = list(csv.DictReader(summary))
+  
   return return_data
 
 def log_to_dict(arg):

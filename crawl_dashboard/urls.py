@@ -23,6 +23,9 @@ urlpatterns = [
     url(r'^domains/view_test/(?P<dealer_id>[A-Za-z0-9\-\_\.\&]+)/test_detail/(?P<id>[0-9]+)/$', domain_views.test_detail, name='test_detail'),
     url(r'^domains/update_input/$', domain_views.update_input, name='update_input'),
     url(r'^unexpected_urls/$', main_views.unexpected_urls, name='unexpected_urls'),
+    url(r'^domains/get_dealer/$', domain_views.get_dealer, name='get_dealer'),
+    url(r'^settings/$', main_views.config_settings, name='config_setting'),
+    url(r'^crawlers/total_summary/(?P<crawl_date>[0-9\-]+)/$', crawl_views.total_summary, name='total_summary'),
 
     # accounts
     url(r'^signup/$', accounts_views.signup, name='signup'),

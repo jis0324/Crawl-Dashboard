@@ -6,8 +6,8 @@
 
 {% block breadcrumb %}
   <li class="breadcrumb-item"><a onclick='redirect(event);' href="{% url 'crawl_index' %}">Crawl Dashboard</a></li>
-  <li class="breadcrumb-item active"><a onclick='redirect(event);' href="{% url 'crawl_summary' host_name today_date %}">{{ host_name }}</a></li>
-  <li class="breadcrumb-item active"><a onclick='redirect(event);' href="{% url 'crawl_summary' host_name crawl_date %}">{{ crawl_date }}</a></li>
+  <li class="breadcrumb-item active">{% if host_name == "104.238.234.40" %}<a onclick='redirect(event);' href="{% url 'total_summary' crawl_date %}">Total Summary</a>{%else%}<a onclick='redirect(event);' href="{% url 'crawl_summary' host_name today_date %}">{{ host_name }}</a>{%endif%}</li>
+  <li class="breadcrumb-item active">{% if host_name == "104.238.234.40" %}{{ crawl_date }}{%else%}<a onclick='redirect(event);' href="{% url 'crawl_summary' host_name crawl_date %}">{{ crawl_date }}</a>{%endif%}</li>
   <li class="breadcrumb-item active">{{ domain }}</li>
 {% endblock %}
 

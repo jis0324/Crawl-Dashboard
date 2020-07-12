@@ -22,9 +22,9 @@
         <th>Start Time</th>
         <th>Updated Time</th>
         <th>Elapsed Time</th>
-        <th>Dealer Count</th>
+        <th>Crawled Domains</th>
         <th>Inventory Count</th>
-        <th>URL Count</th>
+        <th>Assigned Domains</th>
       </tr>
     </thead>
     <tbody>
@@ -32,7 +32,7 @@
         {% if forloop.counter0 == 0 %}
           <tr>
             <td>server</td>
-            <td>{{row.host}}</td>
+            <td><a onclick='redirect(event);' href="{% url 'total_summary' crawl_date %}">{{row.host}}</a></td>
             <td>{{row.crawl_type}}</td>
             <td>{{row.start_time}}</td>
             <td>{{row.completed_time}}</td>

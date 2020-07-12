@@ -12,6 +12,10 @@ $(document).ready(function () {
   $('#crawler_summary_tbl').DataTable({
   }).order([0, 'asc']).draw();
 
+  // datatable for inventory
+  $('#total_summary_tbl').DataTable({
+  }).order([0, 'asc']).draw();
+
   // datatable for test list
   $('#view_test_tbl').DataTable({
   }).order([0, 'asc']).draw();
@@ -89,18 +93,52 @@ $(document).ready(function () {
     }
   });
 
-  $('#crawler_summary_tbl').on('click', '.edit-btn', function() {
-    $('#edit_domain_modal #edit_dealer_id').val($(this).data('dealer'));
-    $('#edit_domain_modal #edit_dealer_name').val($(this).data('name'));
-    $('#edit_domain_modal #edit_dealer_domain').val($(this).data('domain'));
-    $('#edit_domain_modal #edit_err_state').val($(this).data('category'));
-    $('#edit_domain_modal').modal();
+  $('table').on('click', '.edit-btn', function() {
+    event.preventDefault();
+    show_loading();
+    let dealer_id = $(this).data('dealer');
+    $('#edit_domain_modal #edit_dealer_id').val('');
+    $('#edit_domain_modal #edit_dealer_name').val('');
+    $('#edit_domain_modal #edit_dealer_domain').val('');
+    $('#edit_domain_modal #edit_crawl_type').val('');
+    $('#edit_domain_modal #edit_crawl_type_reason').val('');
+    $('#edit_domain_modal #edit_redirect_urls').val('');
+
+    $.ajax({
+      type: "POST",
+      url: "/domains/get_dealer/",
+      data: {
+        'csrfmiddlewaretoken' : $('#edit_domain_form input[name="csrfmiddlewaretoken"]').val(),
+        'dealer_id': dealer_id,
+      },
+      success: function (result) {
+        if (result == 'not_found') {
+          alert('Can not found this dealer! Try again.');
+        } else if (result == 'failed') {
+          alert('Raised Some Error! Please try again.');
+        } else {
+          let response = JSON.parse(result);
+          
+          $('#edit_domain_modal #edit_dealer_id').val(response['dealer_id']);
+          $('#edit_domain_modal #edit_dealer_name').val(response['dealer_name']);
+          $('#edit_domain_modal #edit_dealer_domain').val(response['dealer_site']);
+          $('#edit_domain_modal #edit_crawl_type').val(response['dealer_type']);
+          $('#edit_domain_modal #edit_crawl_type_reason').val(response['dealer_type_reason']);
+          $('#edit_domain_modal #edit_redirect_urls').val(response['dealer_redirect']);
+
+          $('#edit_domain_modal').modal();
+        }
+        hide_loading();
+      }
+    });
+
   });
 
   $('#edit_domain_form').submit(function () {
     event.preventDefault();
     show_loading();
     let dealer_id = $('#edit_domain_modal #edit_dealer_id').val();
+    let redirect_urls = $('#edit_domain_modal #edit_redirect_urls').val();
     let crawl_type = $('#edit_domain_modal #edit_crawl_type').val();
     let crawl_type_reason = $('#edit_domain_modal #edit_crawl_type_reason').val();
 
@@ -110,6 +148,7 @@ $(document).ready(function () {
       data: {
         'csrfmiddlewaretoken' : $('#edit_domain_form input[name="csrfmiddlewaretoken"]').val(),
         'dealer_id': dealer_id,
+        'redirect_urls': redirect_urls,
         'crawl_type': crawl_type,
         'crawl_type_reason': crawl_type_reason,
       },
@@ -123,6 +162,49 @@ $(document).ready(function () {
       }
     });
 
+  });
+
+  $('#settings_form .setting-edit-btn').on('click', function() {
+    $('#settings_form input').removeAttr('disabled');
+    $('#settings_form textarea').removeAttr('disabled');
+    $('#settings_form select').removeAttr('disabled');
+    $(this).removeClass('d-block').addClass('d-none');
+    $('#settings_form .setting-submit-btn').removeClass('d-none').addClass('d-block');
+  });
+
+  $('#settings_form').submit(function() {
+    event.preventDefault();
+    show_loading();
+
+    $.ajax({
+      type: "POST",
+      url: "/settings/",
+      data: {
+        'csrfmiddlewaretoken' : $('#settings_form input[name="csrfmiddlewaretoken"]').val(),
+        "host" : $('#settings_form #setting_host').val(),
+        "port" : $('#settings_form #setting_port').val(),
+        "crawler_start_time" : $('#settings_form #setting_start_time').val(),
+        "crawler_interval_time" : $('#settings_form #setting_interval_time').val(),
+        "url_per_spider_crawler" : $('#settings_form #setting_url_count_per_scrapy_crawler').val(),
+        "url_per_selenium_crawler" : $('#settings_form #setting_url_count_per_selenium_crawler').val(),
+        "spider_crawlers" : $('#settings_form #setting_scrapy_crawlers').val(),
+        "selenium_crawlers" : $('#settings_form #setting_selenium_crawlers').val(),
+        "update_status" : $('#settings_form #setting_crawler_file_update_flag').val(),
+        "process_per_crawler" : $('#settings_form #setting_process_count').val(),
+      },
+      success: function (result) {
+        if (result == 'success') {
+          $('#settings_form input').prop( "disabled", true );
+          $('#settings_form textarea').prop( "disabled", true );
+          $('#settings_form select').prop( "disabled", true );
+          $('#settings_form .setting-edit-btn').removeClass('d-none').addClass('d-block');
+          $('#settings_form .setting-submit-btn').removeClass('d-block').addClass('d-none');
+        } else {
+          alert('Raised Some Error! Please try again.');
+        }
+        hide_loading();
+      }
+    });
   });
 
   $('#domains_tbl').removeClass('d-none');
