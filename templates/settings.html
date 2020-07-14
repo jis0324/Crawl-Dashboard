@@ -33,6 +33,10 @@
             <input type="text" id="setting_process_count" name="setting_process_count" class="form-control" value="{{data.process_per_crawler}}" disabled>
           </div>
           <div class="form-group">
+            <label for="setting_not_available_repeat_count">REQUEST_REPEAT_COUNT (NOT_AVAILABLE) : </label>
+            <input type="text" id="setting_not_available_repeat_count" name="setting_not_available_repeat_count" class="form-control" value="{{data.not_available_request_repeat_count}}" disabled>
+          </div>
+          <div class="form-group">
             <label for="setting_scrapy_crawlers">SCRAPY CRAWLERs : </label>
             <textarea type="text" id="setting_scrapy_crawlers" name="setting_scrapy_crawlers" class="form-control" rows="10" disabled>{{data.spider_crawlers|join:"&#10;"|cut:" "}}</textarea>
           </div>
@@ -56,6 +60,10 @@
               <option value="True" {%if data.update_status == "True"%}selected{%endif%}>TRUE</option>
               <option value="False" {%if data.update_status == "False"%}selected{%endif%}>FALSE</option>
             </select>
+          </div>
+          <div class="form-group">
+            <label for=""> : </label>
+            <input type="text" id="" name="" class="form-control" value="" disabled>
           </div>
           <div class="form-group">
             <label for="setting_selenium_crawlers">SELENIUM CRAWLERs : </label>

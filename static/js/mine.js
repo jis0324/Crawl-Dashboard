@@ -191,6 +191,7 @@ $(document).ready(function () {
         "selenium_crawlers" : $('#settings_form #setting_selenium_crawlers').val(),
         "update_status" : $('#settings_form #setting_crawler_file_update_flag').val(),
         "process_per_crawler" : $('#settings_form #setting_process_count').val(),
+        "not_available_request_repeat_count" : $('#settings_form #setting_not_available_repeat_count').val(),
       },
       success: function (result) {
         if (result == 'success') {

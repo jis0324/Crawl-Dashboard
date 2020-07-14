@@ -47,6 +47,7 @@ def config_settings(request):
       config.set('Server', 'SELENIUM_CLIENTS', str(request.POST['selenium_crawlers'].replace('\n', ',')))
       config.set('Server', 'UPDATE_STATUS', str(request.POST['update_status']))
       config.set('Server', 'PROCESS_NUM_FOR_SPIDER_CLIENTS', str(request.POST['process_per_crawler']))
+      config.set('Server', 'NOT_AVAILABLE_REQUEST_REPEAT_COUNT', str(request.POST['not_available_request_repeat_count']))
 
       # Writing our configuration file to 'example.ini'
       with open( config_file, 'w' ) as configfile:
@@ -68,7 +69,9 @@ def config_settings(request):
       "selenium_crawlers" : config['Server']['SELENIUM_CLIENTS'].split(','),
       "update_status" : config['Server']['UPDATE_STATUS'],
       "process_per_crawler" : config['Server']['PROCESS_NUM_FOR_SPIDER_CLIENTS'],
+      "not_available_request_repeat_count" : config['Server']['NOT_AVAILABLE_REQUEST_REPEAT_COUNT'],
     }
+
 
     return render(request, 'settings.html', {'data' : return_data})
 

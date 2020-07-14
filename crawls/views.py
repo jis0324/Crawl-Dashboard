@@ -200,16 +200,8 @@ def summary_to_dict(arg):
     temp_dict['vin_count'] = row['Vin Count']
     temp_dict['error_state'] = row['Error State']
     temp_dict['host_address'] = row['Host Address']
-    start_time = ''
-    end_time = ''
-    if 'Start Time' in row:
-      start_time = row['Start Time']
-
-    if 'End Time' in row:
-      end_time = row['End Time']
-    
-    temp_dict['start_time'] = start_time
-    temp_dict['end_time'] = end_time
+    temp_dict['elapsed_time'] = row['Elapsed Time']
+    temp_dict['request_count'] = row['Request Count']
     
     return_data.append(temp_dict)
     

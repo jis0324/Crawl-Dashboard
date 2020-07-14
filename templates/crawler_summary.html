@@ -32,8 +32,8 @@
         <th>Domain</th>
         <th>Vin Count</th>
         <th>Error State</th>
-        <th>Start Time</th>
-        <th>End Time</th>
+        <th>Elapsed Time</th>
+        <th>Request Count</th>
         <th>Action</th>
       </tr>
     </thead>
@@ -48,8 +48,8 @@
           <td><a href="http://{{row.domain}}" target="blank" alt="To Inventory">{{ row.domain }}</a></td>
           <td>{{ row.vin_count }}</td>
           <td>{{ row.error_state }}</td>
-          <td>{{ row.start_time }}</td>
-          <td>{{ row.end_time }}</td>
+          <td>{{ row.elapsed_time }}</td>
+          <td>{{ row.request_count }}</td>
           <td>
             <button class="btn btn-info edit-btn mr-3" data-dealer="{{ row.dealer_id}}">Edit</button>
           </td>
