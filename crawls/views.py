@@ -187,6 +187,25 @@ def log_to_dict(arg):
     
   return return_data
 
+def defalt_format(arg):
+    if len(arg) == 1:
+        arg = '0' + arg
+    return arg
+
+def calc_elapsed_time(start_time, end_time):
+  try:
+    start_time_obj = datetime.datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
+    end_time_obj = datetime.datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
+    elapsed_time = (end_time_obj - start_time_obj).seconds
+    elapsed_hour = int(elapsed_time/3600)
+    rest_time = elapsed_time - elapsed_hour * 3600
+    elapsed_minute = int(rest_time/60)
+    rest_time = rest_time - elapsed_minute * 60
+    elapsed_secs = rest_time
+    return defalt_format(str(elapsed_hour)) + "h " + " " + defalt_format(str(elapsed_minute)) + "m " + " " + defalt_format(str(elapsed_secs)) + "s"
+  except:
+    return ''
+
 def summary_to_dict(arg):
   return_data = list()
   for row in arg:
@@ -200,9 +219,13 @@ def summary_to_dict(arg):
     temp_dict['vin_count'] = row['Vin Count']
     temp_dict['error_state'] = row['Error State']
     temp_dict['host_address'] = row['Host Address']
-    temp_dict['elapsed_time'] = row['Elapsed Time']
-    temp_dict['request_count'] = row['Request Count']
-    
+    if 'Elapsed Time' in row:
+      temp_dict['elapsed_time'] = row['Elapsed Time']
+      temp_dict['request_count'] = row['Request Count']
+    else:
+      temp_dict['elapsed_time'] = calc_elapsed_time(row['Start Time'], row['End Time'])
+      temp_dict['request_count'] = ''
+
     return_data.append(temp_dict)
     
   return return_data

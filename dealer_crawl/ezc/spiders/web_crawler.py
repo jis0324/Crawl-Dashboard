@@ -635,7 +635,6 @@ class BrowseableSubsystem(object):
         chrome_option.add_argument('--no-sandbox')
         chrome_option.add_argument('--disable-dev-shm-usage')
         chrome_option.add_argument('--ignore-certificate-errors')
-        chrome_option.add_argument("--disable-blink-features=AutomationControlled")
         chrome_option.add_argument(f'user-agent={user_agent}')
         chrome_option.headless = True
         
@@ -657,8 +656,15 @@ class BrowseableSubsystem(object):
         date_time = now.strftime("%Y-%m-%d %H:%M:%S")
         return date_time
 
-    def remove_duplicated_item_from_list(self, duplicated_list):
-        return list(set(duplicated_list))
+    def remove_duplicated_inventory_url(self):
+        self.tmp_inventory_href_list = list(set(self.tmp_inventory_href_list))
+        inventory_urls = self.tmp_inventory_href_list
+        
+        for inventory_url in self.tmp_inventory_href_list:
+            for other_inventory_url in self.tmp_inventory_href_list:
+                if inventory_url != other_inventory_url and inventory_url in inventory_urls:
+                    inventory_urls.remove(inventory_url)
+        self.tmp_inventory_href_list = inventory_urls
     
     # ----------------------------------- necessary patterns start ------------------------------------- #
     def get_detail_page_url_patterns(self):
@@ -739,7 +745,8 @@ class BrowseableSubsystem(object):
         html_content = re.sub('\<\/a\>', '</a>\n', html_content)
         html_content = re.sub('\<\/script\>', '</script>\n', html_content)
         html_content = re.sub('\<script.*\<\/script\>', '', html_content)
-        matched_result_pattern = re.compile('\<a\s*.*(href\s*\=\s*\"*\'*.*\"*\'*.*\>.*\<\/a\>)')       
+        matched_result_pattern = re.compile('\<a\s*.*(href\s*\=\s*\"*\'*.*\"*\'*.*\>.*\<\/a\>)')     
+        all_patterns = []  
         for item in matched_result_pattern.finditer(html_content):
             matched_result = item.groups()[0]
             for inventory_page_pattern in self.inventory_page_url_patterns:
@@ -749,7 +756,12 @@ class BrowseableSubsystem(object):
                     inventory_href = self.extract_href(space_removed_matched_result)
                     inventory_href = self.check_inventory_page_urls(inventory_href)
                     if inventory_href not in self.tmp_inventory_href_list and inventory_href != '#':
+                        if 'all' in space_removed_pattern.lower():
+                            all_patterns.append(inventory_href)        
                         self.tmp_inventory_href_list.append(inventory_href)
+        
+        if len(all_patterns) > 0:
+            self.tmp_inventory_href_list = all_patterns
         
     def check_inventory_page_urls(self, inventory_href):
         if inventory_href == "/used-cars":
@@ -870,15 +882,20 @@ class BrowseableSubsystem(object):
         domain = re.sub(r'(.*://)?([^/?]+).*', '\g<1>\g<2>', inventory_url)
         return domain
         
-    def remove_duplicated_inventory_url(self):
-        self.tmp_inventory_href_list = list(set(self.tmp_inventory_href_list))
-        inventory_urls = self.tmp_inventory_href_list
-        
-        for inventory_url in self.tmp_inventory_href_list:
-            for other_inventory_url in self.tmp_inventory_href_list:
-                if inventory_url != other_inventory_url and inventory_url in inventory_urls:
-                    inventory_urls.remove(inventory_url)
-        self.tmp_inventory_href_list = inventory_urls
+    def get_redirect_domain_inventory(self, inventory_url):
+        domain = re.sub(r'(.*://)?([^/?]+).*', '\g<1>\g<2>', inventory_url)
+        return domain
+    
+    def remove_duplicated_item_from_list(self, duplicated_list):
+        unique_urls = list(set(duplicated_list))
+        ret_urls = []
+        # remove similar urls ('/used' == '/used/' )
+        for url in unique_urls:
+            if url[:-1] in unique_urls:
+                pass
+            else:
+                ret_urls.append(url)
+        return ret_urls
     
     def check_list_selected(self, inventory_html):
         html_content = inventory_html
@@ -1215,36 +1232,37 @@ class BrowseableSubsystem(object):
                                 
                                 # inventory page with "Show_xxx" button (one page) 
                                 inventory_pagination_link_count = 0
-                                truckmax_elements = []
+                                script_elements = []
                                 try:
                                     print (inventory_url)
                                     vehicle_html = WebDriverWait(self.driver, 20).until(lambda driver: driver.find_element_by_tag_name("html").get_attribute("innerHTML").strip())                 
                                     next_page_attr, next_page_value, next_page_state, next_page_child_tag, next_page_condition = self.extract_pagination_attribute(vehicle_html)
-                                    if next_page_value == 'inventory-pagination_link js-pagination-btn':
-                                        next_page_link_script = '//*[@class="inventory-pagination_link js-pagination-btn"]'
-                                        while True:
-                                            try:
-                                                next_page_link = self.driver.find_element_by_xpath(next_page_link_script)
-                                                self.driver.execute_script("arguments[0].click();", next_page_link)
-                                                time.sleep(3)
-                                                inventory_pagination_link_count += 1
-                                            except:
-                                                break
-                                        print ('----  click count ------')
-                                        print (inventory_pagination_link_count)
-                                    if 'truckmax.com' in url:
-                                        truckmax_elements = self.driver.find_elements_by_tag_name("script")
-                                        for element in truckmax_elements:
-                                            try:
-                                                outhtml = element.get_attribute('outerHTML')
-                                                if outhtml not in vehicle_info_outHtml:
-                                                    vehicle_info_outHtml.append(outhtml)
-                                            except:
-                                                pass
                                 except:
-                                    pass
+                                    next_page_value = None
+                                    
+                                if next_page_value == 'inventory-pagination_link js-pagination-btn':
+                                    next_page_link_script = '//*[@class="inventory-pagination_link js-pagination-btn"]'
+                                    while True:
+                                        try:
+                                            next_page_link = self.driver.find_element_by_xpath(next_page_link_script)
+                                            self.driver.execute_script("arguments[0].click();", next_page_link)
+                                            time.sleep(3)
+                                            inventory_pagination_link_count += 1
+                                        except:
+                                            break
+                                    print ('----  click count ------')
+                                    print (inventory_pagination_link_count)
+                                    script_elements = self.driver.find_elements_by_tag_name("script")
+                                    for element in script_elements:
+                                        try:
+                                            outhtml = element.get_attribute('outerHTML')
+                                            if outhtml not in vehicle_info_outHtml and "window.inlineJS.push(function() { Moff.modules.get('DataLayer').pushData('VehicleObject_" in outhtml:
+                                                vehicle_info_outHtml.append(outhtml)
+                                        except:
+                                            pass
                                 
-                                if 'truckmax.com' not in url:
+                                # if 'truckmax.com' not in url:
+                                if len(vehicle_info_outHtml) == 0:
                                     while True:           
                                         vehicle_html = ''     
                                         try:
@@ -1380,120 +1398,119 @@ class BrowseableSubsystem(object):
                                                     if detail_url not in detail_url_list_each_site and inventory_url != detail_url:
                                                         detail_url_list_each_site.append(detail_url)
                                                 
-                                                if next_page_value != 'inventory-pagination_link js-pagination-btn':
-                                                    next_page_attr, next_page_value, next_page_state, next_page_child_tag, next_page_condition = self.extract_pagination_attribute(vehicle_html)
-                                                    content = 'next_page_attr, next_page_value, next_page_state, next_page_child_tag, next_page_condition are [%s], [%s], [%s], [%s], [%s]' % (next_page_attr, next_page_value, next_page_state, next_page_child_tag, next_page_condition)
-                                                    self.insert_log(content)
-                                                    page_not_changed = False
-                                                
-                                                    if next_page_attr != None:
-                                                        if next_page_attr == 'option': 
-                                                            # select box                                                        
-                                                            try:
-                                                                find_option_text_script = 'return document.getElementsByName("page")[0].getElementsByTagName("option")[1].getElementsByTagName("a")[' + str(page_count - 1) + '].textContent'
-                                                                option_text = self.driver.execute_script(find_option_text_script)
-                                                                self.driver.find_element_by_xpath("//select[@name='page']/option[text()='" + option_text + "']").click()
-                                                                content = option_text + ' is clicked'
-                                                                self.insert_log(content) 
-                                                                page_not_changed = False
-                                                            except:
-                                                                content = 'not clicked'
-                                                                self.insert_log(content)
-                                                                pass
-                                                        elif next_page_value == 'paging':
-                                                            try:
-                                                                self.driver.find_elements_by_class_name("convertUrl ")[page_no].click()
-                                                                content = 'a[%s] is clicked' % str(page_no)
-                                                                self.insert_log(content)
-                                                                page_not_changed = False
-                                                                page_no += 1
-                                                            except:
-                                                                pass
-                                                        else:
-                                                            next_page_link_script = '--- nothing ---'
-                                                            general_attr = ['class', 'id', 'rel']
-                                                            # ----------- pagination for unavaliable next link start ----------
-                                                            if next_page_value == 'pagination custom-pagination-top right':                                                        
-                                                                page_no += 1
-                                                                next_page_link_script = '//ul[@class="pagination custom-pagination-top right"]/li[@id="' + str(page_no + 1) + '"]/a'
-                                                                
-                                                            elif next_page_value == 'page_number pagination':
-                                                                next_page_link_script = '//ul[@class="' + next_page_value + '"]' + next_page_child_tag 
-                                                            # ----------- pagination for unavaliable next link end ----------
-                                                            
-                                                            elif next_page_attr in general_attr:
-                                                                if next_page_condition != '':
-                                                                    next_page_link_script = '//*[@' + next_page_attr + '="' + next_page_value + '"]' + next_page_child_tag + '[contains(text(),"' + next_page_condition + '")]' 
-                                                                else:
-                                                                    next_page_link_script = '//*[@' + next_page_attr + '="' + next_page_value + '"]' + next_page_child_tag 
-                                                                
-                                                            elif next_page_attr == 'text':
-                                                                if next_page_state == 'equal':
-                                                                    next_page_link_script = '//*[.="' + next_page_value + '"]'
-                                                                elif next_page_state == 'contain':
-                                                                    next_page_link_script = '//*[contains(text(),"' + next_page_value + '")]'
-                                                                
-                                                            elif next_page_attr == 'refreshData': 
-                                                                # div onclick="refreshData()"
-                                                                next_page_link_script = '//div[@id="' + next_page_value + '"]/div[.="Next"]'
-                                                                
-                                                            try:
-                                                                next_page_link = self.driver.find_element_by_xpath(next_page_link_script)
-                                                                self.driver.execute_script("arguments[0].click();", next_page_link)
-                                                                pages_not_change = ['ImageButtonNext']
-                                                                if next_page_value in pages_not_change:
-                                                                    page_not_changed = True                                                
-                                                                else:
-                                                                    page_not_changed = False                                                
-                                                                content = 'clicked ' + next_page_link_script
-                                                            except:
-                                                                content = 'not clicked ' + next_page_link_script
-                                                                page_count -= 1
-                                                                next_page_enable = False
-                                                                pagination = False
-                                                                pass
-                                                            
+                                                # if next_page_value != 'inventory-pagination_link js-pagination-btn':
+                                                next_page_attr, next_page_value, next_page_state, next_page_child_tag, next_page_condition = self.extract_pagination_attribute(vehicle_html)
+                                                content = 'next_page_attr, next_page_value, next_page_state, next_page_child_tag, next_page_condition are [%s], [%s], [%s], [%s], [%s]' % (next_page_attr, next_page_value, next_page_state, next_page_child_tag, next_page_condition)
+                                                self.insert_log(content)
+                                                page_not_changed = False
+                                            
+                                                if next_page_attr != None:
+                                                    if next_page_attr == 'option': 
+                                                        # select box                                                        
+                                                        try:
+                                                            find_option_text_script = 'return document.getElementsByName("page")[0].getElementsByTagName("option")[1].getElementsByTagName("a")[' + str(page_count - 1) + '].textContent'
+                                                            option_text = self.driver.execute_script(find_option_text_script)
+                                                            self.driver.find_element_by_xpath("//select[@name='page']/option[text()='" + option_text + "']").click()
+                                                            content = option_text + ' is clicked'
+                                                            self.insert_log(content) 
+                                                            page_not_changed = False
+                                                        except:
+                                                            content = 'not clicked'
                                                             self.insert_log(content)
-                                                        
-                                                        content = 'page click count : ' + str(page_count) + ' clicked by ' + next_page_attr + ' ' + next_page_value 
-                                                        print (content)
-                                                        page_count += 1
-                                                        time.sleep(5)
-                                                        current_url = pagination_url
-                                                        if page_not_changed == False and 'isaacsautosalesbkf.com' not in domain:
-                                                            try:
-                                                                current_url = self.driver.current_url
-                                                            except:
-                                                                break
-                                                            
-                                                        if pagination_url != current_url:
-                                                            pagination_url = current_url
-                                                            try:
-                                                                page_url_changed = True
-                                                            except TimeoutException:
-                                                                content = pagination_url + ' ' + 'Page load Timeout Occured.'
-                                                                self.insert_log(content)
-                                                                break
-                                                        else:
-                                                            page_url_changed = False
-                                                        pagination = True
+                                                            pass
+                                                    elif next_page_value == 'paging':
+                                                        try:
+                                                            self.driver.find_elements_by_class_name("convertUrl ")[page_no].click()
+                                                            content = 'a[%s] is clicked' % str(page_no)
+                                                            self.insert_log(content)
+                                                            page_not_changed = False
+                                                            page_no += 1
+                                                        except:
+                                                            pass
                                                     else:
-                                                        next_page_enable = False
-                                                        pagination = False
-                                                    # print ('----------- nex page click again  ---------', page_next_tag_click_again)
-                                                    # print ('pagination_url : ', pagination_url)
-                                                    # print ('current_url : ', current_url)
-                                                    # print ('--------------------')
-                                                    if next_page_enable == False:
-                                                        if page_next_tag_click_again >= 1:
+                                                        next_page_link_script = '--- nothing ---'
+                                                        general_attr = ['class', 'id', 'rel']
+                                                        # ----------- pagination for unavaliable next link start ----------
+                                                        if next_page_value == 'pagination custom-pagination-top right':                                                        
+                                                            page_no += 1
+                                                            next_page_link_script = '//ul[@class="pagination custom-pagination-top right"]/li[@id="' + str(page_no + 1) + '"]/a'
+                                                            
+                                                        elif next_page_value == 'page_number pagination':
+                                                            next_page_link_script = '//ul[@class="' + next_page_value + '"]' + next_page_child_tag 
+                                                        # ----------- pagination for unavaliable next link end ----------
+                                                        
+                                                        elif next_page_attr in general_attr:
+                                                            if next_page_condition != '':
+                                                                next_page_link_script = '//*[@' + next_page_attr + '="' + next_page_value + '"]' + next_page_child_tag + '[contains(text(),"' + next_page_condition + '")]' 
+                                                            else:
+                                                                next_page_link_script = '//*[@' + next_page_attr + '="' + next_page_value + '"]' + next_page_child_tag 
+                                                            
+                                                        elif next_page_attr == 'text':
+                                                            if next_page_state == 'equal':
+                                                                next_page_link_script = '//*[.="' + next_page_value + '"]'
+                                                            elif next_page_state == 'contain':
+                                                                next_page_link_script = '//*[contains(text(),"' + next_page_value + '")]'
+                                                            
+                                                        elif next_page_attr == 'refreshData': 
+                                                            # div onclick="refreshData()"
+                                                            next_page_link_script = '//div[@id="' + next_page_value + '"]/div[.="Next"]'
+                                                            
+                                                        try:
+                                                            next_page_link = self.driver.find_element_by_xpath(next_page_link_script)
+                                                            self.driver.execute_script("arguments[0].click();", next_page_link)
+                                                            pages_not_change = ['ImageButtonNext']
+                                                            if next_page_value in pages_not_change:
+                                                                page_not_changed = True                                                
+                                                            else:
+                                                                page_not_changed = False                                                
+                                                            content = 'clicked ' + next_page_link_script
+                                                        except:
+                                                            content = 'not clicked ' + next_page_link_script
+                                                            page_count -= 1
+                                                            next_page_enable = False
                                                             pagination = False
-                                                            if next_page_attr != None:
-                                                                page_count -= 1
+                                                            pass
+                                                        
+                                                        self.insert_log(content)
+                                                    
+                                                    content = 'page click count : ' + str(page_count) + ' clicked by ' + next_page_attr + ' ' + next_page_value 
+                                                    print (content)
+                                                    page_count += 1
+                                                    time.sleep(5)
+                                                    current_url = pagination_url
+                                                    if page_not_changed == False and 'isaacsautosalesbkf.com' not in domain:
+                                                        try:
+                                                            current_url = self.driver.current_url
+                                                        except:
                                                             break
-                                                        else:
-                                                            page_next_tag_click_again += 1
+                                                        
+                                                    if pagination_url != current_url:
+                                                        pagination_url = current_url
+                                                        try:
+                                                            page_url_changed = True
+                                                        except TimeoutException:
+                                                            content = pagination_url + ' ' + 'Page load Timeout Occured.'
+                                                            self.insert_log(content)
+                                                            break
+                                                    else:
+                                                        page_url_changed = False
+                                                    pagination = True
                                                 else:
-                                                    break
+                                                    next_page_enable = False
+                                                    pagination = False
+                                                # print ('----------- nex page click again  ---------', page_next_tag_click_again)
+                                                # print ('pagination_url : ', pagination_url)
+                                                # print ('current_url : ', current_url)
+                                                # print ('--------------------')
+                                                if next_page_enable == False:
+                                                    if page_next_tag_click_again >= 1:
+                                                        pagination = False
+                                                        if next_page_attr != None:
+                                                            page_count -= 1
+                                                        break
+                                                    else:
+                                                        page_next_tag_click_again += 1
+                                                
                                                     
                                             else:
                                                 content = inventory_url + ' ' + 'no vehicle'
@@ -1659,7 +1676,7 @@ def summarylisttostring(s):
 def make_domain(url):
     try:
         if "http" in url:
-            url = url.split("//")[-1].split("/")[0].split('?')[0]
+            url = url.split("//", 1)[1].split("/", 1)[0].split('?', 1)[0]
         if "www" in url:
             url = url[4:]
         return url
