@@ -221,6 +221,7 @@ def input_to_dict(arg1, arg2):
     temp_dict['realurl'] = make_url(row['Website'])
     temp_dict['category'] = row['Category']
     temp_dict['crawl_type'] = row['Crawl Type']
+    temp_dict['type_reason'] = row['Type Reasone']
     temp_dict['redirect_url'] = row['Redirect URLs']
 
     redirect_list = list()

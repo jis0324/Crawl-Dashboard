@@ -18,6 +18,7 @@
         <th>Redirect URLs</th>
         <th>Category</th>
         <th>Crawl Type</th>
+        <th>Comment</th>
         <th>Test</th>
       </tr>
     </thead>
@@ -37,6 +38,7 @@
           </td>
           <td>{{row.category}}</td>
           <td>{{row.crawl_type}}</td>
+          <td>{{row.type_reason}}</td>
           <td class="d-flex">
             <button class="btn btn-info {% if row.test_status == 'crawling' %} d-none {% endif %} test-btn mr-3" data-dealer="{{ row.dealer_id}}" data-name=" {{ row.dealer_name }}" data-city="{{ row.city }}" data-state="{{ row.state }}" data-zip="{{ row.zip }}" data-website="{{ row.website }}" data-category="{{ row.category }}" data-type="{{ row.crawl_type }}" data-redirect = "{{row.redirect_url}}">Test</button>
             <button class="btn btn-danger {% if row.test_status == 'notcrawling' %} d-none {% endif %} cancel-btn mr-3" data-dealer="{{ row.dealer_id }}">Cancel</button>

@@ -597,6 +597,7 @@ class BrowseableSubsystem(object):
         self.predefined_inventory_url_patterns = []
         self.inventory_csv_name = inventory_csv_name
         self.summary_csv_name = summary_csv_name
+        self.single_inventory_url_patterns = [['\/VehicleSearchResults\?search=','/VehicleSearchResults/?limit=100'], ['\/search.*cy=.*tp=','/search']]
         global dealerids, dealernames, dealerurls, dealerdomains, dealercities, dealerstates, dealerzips
         dealerids = dealer_ids.copy()
         dealernames = dealer_names.copy()
@@ -1007,6 +1008,18 @@ class BrowseableSubsystem(object):
                 return d_tag, d_attr, d_value, d_state, d_child_tag
         return None, None, None, None, ''
 
+    def set_single_inventory_url(self):
+        for url in self.tmp_inventory_href_list:
+            for pattern_pair in self.single_inventory_url_patterns:
+                
+                matched = re.match(pattern_pair[0], url)
+                is_match = bool(matched)
+            
+                if is_match:
+                    self.tmp_inventory_href_list = []
+                    self.tmp_inventory_href_list.append(pattern_pair[1])
+                    return
+
     def insert_log(self, content):
         date_time = self.current_datetime_as_string()
         content = date_time + ' :  ' + content
@@ -1195,6 +1208,9 @@ class BrowseableSubsystem(object):
                     
                     analyzed_count = 0
                     print (self.tmp_inventory_href_list)
+
+                    self.set_single_inventory_url()
+
                     for inventory_href in self.tmp_inventory_href_list:         
 
                         next_page_enable = True 
@@ -1522,6 +1538,7 @@ class BrowseableSubsystem(object):
                                             break
                         analyzed_count += 1
                         print ('analyzed inventory group ' + str(analyzed_count) + '/' + str(len(self.tmp_inventory_href_list)))
+                
                 else:
                     content = 'no inventory page match'
                     self.insert_log(content)

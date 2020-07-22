@@ -8,6 +8,8 @@ from crawls import views as crawl_views
 from domains import views as domain_views
 from accounts import views as accounts_views
 from . import views as main_views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
@@ -53,5 +55,4 @@ urlpatterns = [
     url(r'^settings/password/done/$', auth_views.PasswordChangeDoneView.as_view(template_name='password_change_done.html'),
         name='password_change_done'),
 
-
-]
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
