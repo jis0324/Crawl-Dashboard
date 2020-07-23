@@ -138,6 +138,7 @@ $(document).ready(function () {
     event.preventDefault();
     show_loading();
     let dealer_id = $('#edit_domain_modal #edit_dealer_id').val();
+    let dealer_url = $('#edit_domain_modal #edit_dealer_domain').val();
     let redirect_urls = $('#edit_domain_modal #edit_redirect_urls').val();
     let crawl_type = $('#edit_domain_modal #edit_crawl_type').val();
     let crawl_type_reason = $('#edit_domain_modal #edit_crawl_type_reason').val();
@@ -148,6 +149,7 @@ $(document).ready(function () {
       data: {
         'csrfmiddlewaretoken' : $('#edit_domain_form input[name="csrfmiddlewaretoken"]').val(),
         'dealer_id': dealer_id,
+        'dealer_url': dealer_url,
         'redirect_urls': redirect_urls,
         'crawl_type': crawl_type,
         'crawl_type_reason': crawl_type_reason,

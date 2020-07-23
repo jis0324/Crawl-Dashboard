@@ -179,6 +179,7 @@ def update_input(request):
   if request.method == 'POST':
     try:
       dealer_id = request.POST['dealer_id']
+      dealer_url = request.POST['dealer_url']
       redirect_urls = request.POST['redirect_urls']
       dealer_type = request.POST['crawl_type']
       dealer_reason = request.POST['crawl_type_reason']
@@ -194,6 +195,7 @@ def update_input(request):
           writer.writeheader()
           for row_dict in temp_list:
             if row_dict["Dealer ID"] == dealer_id:
+              row_dict["Website"] = dealer_url
               row_dict["Crawl Type"] = dealer_type
               row_dict["Type Reasone"] = dealer_reason
               row_dict["Redirect URLs"] = redirect_urls
@@ -202,10 +204,6 @@ def update_input(request):
     except Exception as err:
       print(err)
       return HttpResponse('failed')
-
-
-
-    print( dealer_id, dealer_type, dealer_reason )
 
 def input_to_dict(arg1, arg2):
   return_data = list()
