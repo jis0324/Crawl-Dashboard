@@ -133,8 +133,12 @@ def get_data_from_inventory(host, crawl_date, domain):
         crawl_inventory_data = list(csv.DictReader(summary))
     
     for row in crawl_inventory_data:
-      if row['DOMAIN'] == domain:
-        return_data.append(row)
+      if 'DOMAIN' in row:
+        if row['DOMAIN'] == domain:
+          return_data.append(row)
+      elif 'Domain' in row:
+        if row['Domain'] == domain:
+          return_data.append(row)
 
   return return_data
 
@@ -236,7 +240,14 @@ def inventory_to_dict(arg):
     temp_dict = dict()
     temp_dict['dealer_id'] = row['Dealer ID']
     temp_dict['dealer_name'] = row['Dealer Name']
-    temp_dict['domain'] = row['DOMAIN']
+
+    if "DOMAIN" in row:
+      temp_dict['domain'] = row['DOMAIN']
+      temp_dict['url'] = ''
+    else:
+      temp_dict['url'] = row['URL']
+      temp_dict['domain'] = row['Domain']
+      
     temp_dict['vin'] = row['VIN']
     temp_dict['price'] = row['Price']
     temp_dict['mileage'] = row['Mileage']

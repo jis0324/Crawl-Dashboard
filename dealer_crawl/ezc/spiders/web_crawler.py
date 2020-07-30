@@ -2738,16 +2738,16 @@ class BrowseableSubsystem(object):
             page_no = 0 # for no next page attr
             
             # try:
-            w_tag, w_attr, w_value, w_state = self.extract_detail_wrapper(domain)                
+            w_tag, w_attr, w_value, w_state = self.extract_detail_wrapper(domain)
             inventory_url_predefined = True
             inventory_url_predefined = self.get_predefined_inventory_href(url)
             
             if inventory_url_predefined == False:
-                if pagination == False:     
+                if pagination == False:
                     try:
                         self.driver = self.driver.quit()
                     except:
-                        pass                   
+                        pass
                     # try:
                     self.driver = self.set_driver()
                     self.driver.get(url)
@@ -3415,5 +3415,9 @@ if __name__ == '__main__':
     file_exists = os.path.isfile( base_dir + "/link.csv")
     if file_exists:
         os.remove( base_dir + "/link.csv")
+
+    for proc in psutil.process_iter():
+        if proc.name() == "chrome":
+            proc.kill()
 
     main()
