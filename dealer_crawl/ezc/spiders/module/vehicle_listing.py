@@ -12,7 +12,7 @@ def make_vehicle_list(final_dict, csv_name):
 
     file_exists = os.path.isfile(csv_name)
     with open(csv_name, 'a', newline='') as file:
-            fieldnames = ['Dealer ID', 'Dealer Name', 'City', 'State', 'Zip', 'URL', 'VIN', 'Price',
+            fieldnames = ['Dealer ID', 'Dealer Name', 'City', 'State', 'Zip', 'Domain', 'URL', 'VIN', 'Price',
                                     'Mileage', 'Type', 'Title', 'Year', 'Make', 'Model', 'Trim']
             writer = csv.DictWriter(file, fieldnames=fieldnames)
             if not file_exists:
@@ -21,7 +21,7 @@ def make_vehicle_list(final_dict, csv_name):
 
 def update_csv(csv_name, value_list, foundVin):
     rows = list()
-    fields = ['Dealer ID', 'Dealer Name', 'City', 'State', 'Zip', 'URL', 'VIN', 'Price', 'Mileage', 'Type', 'Title', 'Year', 'Make', 'Model', 'Trim', ]
+    fields = ['Dealer ID', 'Dealer Name', 'City', 'State', 'Zip', 'Domain', 'URL', 'VIN', 'Price', 'Mileage', 'Type', 'Title', 'Year', 'Make', 'Model', 'Trim', ]
 
     with open(csv_name, 'r') as csvfile:
         reader = csv.DictReader(csvfile, fieldnames=fields)
@@ -29,22 +29,21 @@ def update_csv(csv_name, value_list, foundVin):
         for row in reader:
             if row['VIN'] == foundVin:
                 if row['Price'] == 'N/A':
-                    row['Price'] = value_list[7]
+                    row['Price'] = value_list[8]
                 if row['Mileage'] == 'N/A':
-                    row['Mileage'] = value_list[8]
-                row['Type'] = value_list[9]
+                    row['Mileage'] = value_list[9]
+                row['Type'] = value_list[10]
                 if row['Title'] == '':
-                    row['Title'] = value_list[10]
+                    row['Title'] = value_list[11]
                 if row['Year'] == '':
-                    row['Year'] = value_list[11]
+                    row['Year'] = value_list[12]
                 if row['Make'] == '':
-                    row['Make'] = value_list[12]
+                    row['Make'] = value_list[13]
                 if row['Model'] == '':
-                    row['Model'] = value_list[13]
+                    row['Model'] = value_list[14]
                 if row['Trim'] == '':
-                    row['Trim'] = value_list[14]
-            row = {'Dealer ID': row['Dealer ID'], 'Dealer Name': row['Dealer Name'], 'City' : row['City'], 'State' : row['State'], 'Zip' : row['Zip'], 'URL': row['URL'], 'VIN': row['VIN'], 'Price': row['Price'],
-                   'Mileage': row['Mileage'], 'Type': row['Type'], 'Title': row['Title'], 'Year': row['Year'], 'Make': row['Make'], 'Model': row['Model'], 'Trim': row['Trim']}
+                    row['Trim'] = value_list[15]
+            row = {'Dealer ID': row['Dealer ID'], 'Dealer Name': row['Dealer Name'], 'City' : row['City'], 'State' : row['State'], 'Zip' : row['Zip'], 'Domain': row['Domain'], 'URL': row['URL'], 'VIN': row['VIN'], 'Price': row['Price'], 'Mileage': row['Mileage'], 'Type': row['Type'], 'Title': row['Title'], 'Year': row['Year'], 'Make': row['Make'], 'Model': row['Model'], 'Trim': row['Trim']}
             rows.append(row)
 
     os.remove(csv_name)

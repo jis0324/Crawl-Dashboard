@@ -1888,7 +1888,8 @@ class MySpider(CrawlSpider):
             crawl_dict['City'] = dealer_city
             crawl_dict['State'] = dealer_state
             crawl_dict['Zip'] = dealer_zip
-            crawl_dict['URL'] = url
+            crawl_dict['Domain'] = myDomain
+            crawl_dict['URL'] = response_url
             crawl_dict['VIN'] = foundVin
             temp_dict = get_rest_data(res_content, response_url)
             final_dict = dict(crawl_dict, **temp_dict)
@@ -1909,7 +1910,8 @@ class MySpider(CrawlSpider):
             value_list.append(dealer_city)
             value_list.append(dealer_state)
             value_list.append(dealer_zip)
-            value_list.append(url)
+            value_list.append(myDomain)
+            value_list.append(response_url)
             value_list.append(foundVin)
 
             for value in crawl_dict.values():
@@ -2547,12 +2549,21 @@ class BrowseableSubsystem(object):
 
         if foundVin not in vinSet:
             summary_vin.append(myDomain)
+
+            detail_url_pattern = re.compile(r'href\s*\=\s*([\"\'])')
+            href_prefix = detail_url_pattern.search(res_content)
+            href = ''
+            if href_prefix:
+                href_substring = res_content[href_prefix.end() : href_prefix.end() + 200].strip()
+                href = href_substring.split(href_prefix.groups()[0], 1)[0]
+
             crawl_dict['Dealer ID'] = dealer_id
             crawl_dict['Dealer Name'] = dealer_name
             crawl_dict['City'] = dealer_city
             crawl_dict['State'] = dealer_state
             crawl_dict['Zip'] = dealer_zip
-            crawl_dict['URL'] = url
+            crawl_dict['Domain'] = myDomain
+            crawl_dict['URL'] = href
             crawl_dict['VIN'] = foundVin
             temp_dict = get_rest_data(res_content, response_url)
             final_dict = dict(crawl_dict, **temp_dict)
@@ -2567,13 +2578,22 @@ class BrowseableSubsystem(object):
             if priceSet[vinindex] != 'N/A' and mileageSet[vinindex] != 'N/A' and titleSet[vinindex] != '':
                 return
             crawl_dict = get_rest_data(res_content, response_url)
+
+            detail_url_pattern = re.compile(r'href\s*\=\s*([\"\'])')
+            href_prefix = detail_url_pattern.search(res_content)
+            href = ''
+            if href_prefix:
+                href_substring = res_content[href_prefix.end() : href_prefix.end() + 200].strip()
+                href = href_substring.split(href_prefix.groups()[0], 1)[0]
+                
             value_list = list()
             value_list.append(dealer_id)
             value_list.append(dealer_name)
             value_list.append(dealer_city)
             value_list.append(dealer_state)
             value_list.append(dealer_zip)
-            value_list.append(url)
+            value_list.append(myDomain)
+            value_list.append(href)
             value_list.append(foundVin)
 
             for value in crawl_dict.values():
@@ -2596,7 +2616,9 @@ class BrowseableSubsystem(object):
             d_state = row[4].strip()
             d_child_tag = row[5].strip()
             d_special_directly_domain = row[6].strip()
-            if domain in d_special_directly_domain or d_special_string in html_content and d_special_string != 'special_strings':
+            if domain in d_special_directly_domain:
+                return d_tag, d_attr, d_value, d_state, d_child_tag, d_special_string
+            elif d_special_string in html_content and d_special_string != 'special_strings' and d_special_string != '':
                 return d_tag, d_attr, d_value, d_state, d_child_tag, d_special_string
         return None, None, None, None, '', None
 
@@ -2682,8 +2704,8 @@ class BrowseableSubsystem(object):
         html_content = html_content.replace(attr, attr+"\n")
         # regex to get like reg_str
         matched_result_pattern = re.compile(reg_str)
-        print(html_content)
-        print(matched_result_pattern)
+        # print(html_content)
+        # print(matched_result_pattern)
         for item in matched_result_pattern.finditer(html_content):
             matched_result = item.groups()[0]
             direct_list.append(matched_result)
@@ -2722,7 +2744,7 @@ class BrowseableSubsystem(object):
             print (domain + ' : ' + url)
             self.insert_log(domain + ' : ' + url)
             
-            if url[0] != 'h':
+            if url[:4] != 'http':
                 url = 'http://' + url
         
             self.tmp_inventory_href_list = [] # inventory page url list of each websites (new or used)
@@ -2738,24 +2760,19 @@ class BrowseableSubsystem(object):
             page_no = 0 # for no next page attr
             
             # try:
-            w_tag, w_attr, w_value, w_state = self.extract_detail_wrapper(domain)
+            w_tag, w_attr, w_value, w_state = self.extract_detail_wrapper(domain)                
             inventory_url_predefined = True
             inventory_url_predefined = self.get_predefined_inventory_href(url)
             
             if inventory_url_predefined == False:
-                if pagination == False:
+                if pagination == False:     
                     try:
                         self.driver = self.driver.quit()
                     except:
-                        pass
+                        pass                   
                     # try:
                     self.driver = self.set_driver()
                     self.driver.get(url)
-                    response = requests.get(url,proxies={"http": "http://" + self.random_proxy, "https": "https://" + self.random_proxy})
-                    # print(response.json())
-                    print(response)
-                    print(self.random_proxy)
-                    print(url)
 
                     time.sleep(3)
                     if redirect_url:
@@ -2793,7 +2810,7 @@ class BrowseableSubsystem(object):
                     #     continue
                 try:
                     inventory_html = WebDriverWait(self.driver, 20).until(lambda driver: driver.find_element_by_tag_name("html").get_attribute("innerHTML").strip())   
-                    print(inventory_html)              
+                    # print(inventory_html)              
                 except:
                     inventory_html = ''
                     pass
@@ -2827,7 +2844,7 @@ class BrowseableSubsystem(object):
                     self.tmp_inventory_href_list = self.remove_duplicated_item_from_list(self.tmp_inventory_href_list)   
                     self.tmp_inventory_href_list.sort(reverse=True)                     
                     self.insert_log('--- possible inventory page start ---')
-                    print (self.tmp_inventory_href_list)
+                    # print (self.tmp_inventory_href_list)
                     for item in self.tmp_inventory_href_list:
                         self.insert_log(item)
                     self.insert_log('--- possible inventory page end ---')
@@ -2933,7 +2950,7 @@ class BrowseableSubsystem(object):
                                             else:
                                                 vehicle_html = ''
                                             content = 'get html code inside <%s>, %s, %s tag' % (w_tag, w_attr, w_value)
-                                        print (vehicle_html)
+                                        # print (vehicle_html)
                                     except:
                                         vehicle_html = ''
                                     self.insert_log(pagination_url + ' : ' + content)
@@ -2942,6 +2959,7 @@ class BrowseableSubsystem(object):
                                     content = 'inventory directly : tag, attr, value, state, child_tag are [%s], [%s], [%s], [%s], [%s]' % (tag, attr, value, state, child_tag)
                                     
                                     self.insert_log(content)
+                                    print (content)
                                     
                                     script_next_page_enable = True
                                     if tag != None or special_directly_domain != None:
