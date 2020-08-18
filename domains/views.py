@@ -165,7 +165,7 @@ def get_dealer(request):
                 'dealer_name' : dealer['Dealer Name'],
                 'dealer_site' : dealer['Website'],
                 'dealer_type' : dealer['Crawl Type'],
-                'dealer_type_reason' : dealer['Type Reasone'],
+                'dealer_type_reason' : dealer['Comment'],
                 'dealer_redirect' : dealer['Redirect URLs'],
               }
               return HttpResponse(json.dumps(return_dict))
@@ -190,14 +190,14 @@ def update_input(request):
           temp_list = list(csv.DictReader(input_file))
 
         with open(settings.SERVER_DIR + '/input.csv', 'w', encoding="latin1", errors="ignore") as input_file:
-          fieldnames = ["Dealer ID", "Dealer Name", "City", "State / Province", "Zip", "Website", "Category", "Crawl Type", "Type Reasone", "Redirect URLs"]
+          fieldnames = ["Dealer ID", "Dealer Name", "City", "State / Province", "Zip", "Website", "Category", "Crawl Type", "Comment", "Redirect URLs"]
           writer = csv.DictWriter(input_file, fieldnames=fieldnames)
           writer.writeheader()
           for row_dict in temp_list:
             if row_dict["Dealer ID"] == dealer_id:
               row_dict["Website"] = dealer_url
               row_dict["Crawl Type"] = dealer_type
-              row_dict["Type Reasone"] = dealer_reason
+              row_dict["Comment"] = dealer_reason
               row_dict["Redirect URLs"] = redirect_urls
             writer.writerow(row_dict)
       return HttpResponse('success')
@@ -219,7 +219,7 @@ def input_to_dict(arg1, arg2):
     temp_dict['realurl'] = make_url(row['Website'])
     temp_dict['category'] = row['Category']
     temp_dict['crawl_type'] = row['Crawl Type']
-    temp_dict['type_reason'] = row['Type Reasone']
+    temp_dict['type_reason'] = row['Comment']
     temp_dict['redirect_url'] = row['Redirect URLs']
 
     redirect_list = list()

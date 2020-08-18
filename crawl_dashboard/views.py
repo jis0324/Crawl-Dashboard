@@ -41,12 +41,12 @@ def config_settings(request):
       config.set('Server', 'PORT', str(request.POST['port']))
       config.set('Server', 'START_TIME', str(request.POST['crawler_start_time']))
       config.set('Server', 'INTERVAL_HOURS', str(request.POST['crawler_interval_time']))
-      config.set('Server', 'URLS_PER_SPIDER_CLIENT', str(request.POST['url_per_spider_crawler']))
-      config.set('Server', 'URLS_PER_SELENIUM_CLIENT', str(request.POST['url_per_selenium_crawler']))
-      config.set('Server', 'SPIDER_CLIENTS', str(request.POST['spider_crawlers'].replace('\n', ',')))
-      config.set('Server', 'SELENIUM_CLIENTS', str(request.POST['selenium_crawlers'].replace('\n', ',')))
-      config.set('Server', 'UPDATE_STATUS', str(request.POST['update_status']))
-      config.set('Server', 'PROCESS_NUM_FOR_SPIDER_CLIENTS', str(request.POST['process_per_crawler']))
+      config.set('Server', 'URL_COUNT_PER_CRAWLABLE_CRAWLER', str(request.POST['url_per_spider_crawler']))
+      config.set('Server', 'URL_COUNT_PER_BROWSEABLE_CRAWLER', str(request.POST['url_per_selenium_crawler']))
+      config.set('Server', 'CRAWLABLE_CRAWLERS_LIST', str(request.POST['spider_crawlers'].replace('\n', ',')))
+      config.set('Server', 'BROWSEABLE_CRAWLERS_LIST', str(request.POST['selenium_crawlers'].replace('\n', ',')))
+      config.set('Server', 'CRAWLER_FILE_UPDATING_FLAG', str(request.POST['update_status']))
+      config.set('Server', 'PROCESS_COUNT_OF_EACH_CRAWLERS', str(request.POST['process_per_crawler']))
       config.set('Server', 'NOT_AVAILABLE_REQUEST_REPEAT_COUNT', str(request.POST['not_available_request_repeat_count']))
 
       # Writing our configuration file to 'example.ini'
@@ -63,12 +63,12 @@ def config_settings(request):
       "port" : config['Server']['PORT'],
       "crawler_start_time" : config["Server"]["START_TIME"],
       "crawler_interval_time" : config['Server']['INTERVAL_HOURS'],
-      "url_per_spider_crawler" : config['Server']['URLS_PER_SPIDER_CLIENT'],
-      "url_per_selenium_crawler" : config['Server']['URLS_PER_SELENIUM_CLIENT'],
-      "spider_crawlers" : config['Server']['SPIDER_CLIENTS'].split(','),
-      "selenium_crawlers" : config['Server']['SELENIUM_CLIENTS'].split(','),
-      "update_status" : config['Server']['UPDATE_STATUS'],
-      "process_per_crawler" : config['Server']['PROCESS_NUM_FOR_SPIDER_CLIENTS'],
+      "url_per_spider_crawler" : config['Server']['URL_COUNT_PER_CRAWLABLE_CRAWLER'],
+      "url_per_selenium_crawler" : config['Server']['URL_COUNT_PER_BROWSEABLE_CRAWLER'],
+      "spider_crawlers" : config['Server']['CRAWLABLE_CRAWLERS_LIST'].split(','),
+      "selenium_crawlers" : config['Server']['BROWSEABLE_CRAWLERS_LIST'].split(','),
+      "update_status" : config['Server']['CRAWLER_FILE_UPDATING_FLAG'],
+      "process_per_crawler" : config['Server']['PROCESS_COUNT_OF_EACH_CRAWLERS'],
       "not_available_request_repeat_count" : config['Server']['NOT_AVAILABLE_REQUEST_REPEAT_COUNT'],
     }
 

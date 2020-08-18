@@ -1668,6 +1668,7 @@ class MySpider(CrawlSpider):
         res = []
 
         for link in links:
+            print(' init link ---------------{}--------------------'.format(link))
             # exception duplication
             if link.url in linkSet:
                 continue
@@ -1805,6 +1806,7 @@ class MySpider(CrawlSpider):
                 writer = csv.writer(f)
                 writer.writerow([link.url])
 
+            print(' passed link ---------------{}--------------------'.format(link))
             res.append(link)
 
         return res
