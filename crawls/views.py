@@ -221,6 +221,10 @@ def summary_to_dict(arg):
     temp_dict['zip'] = row['Zip']
     temp_dict['domain'] = row['DOMAIN']
     temp_dict['vin_count'] = row['Vin Count']
+    if 'Comment' in row:
+      temp_dict['comment'] = row['Comment']
+    else:
+      temp_dict['comment'] = ''
     temp_dict['error_state'] = row['Error State']
     temp_dict['host_address'] = row['Host Address']
     if 'Elapsed Time' in row:
