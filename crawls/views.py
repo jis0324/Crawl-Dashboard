@@ -220,7 +220,10 @@ def summary_to_dict(arg):
     temp_dict['state'] = row['State']
     temp_dict['zip'] = row['Zip']
     temp_dict['domain'] = row['DOMAIN']
-    temp_dict['vin_count'] = row['Vin Count']
+    if row['Vin Count'] == "N/A":
+      temp_dict['vin_count'] = '0'
+    else:
+      temp_dict['vin_count'] = row['Vin Count']
     if 'Comment' in row:
       temp_dict['comment'] = row['Comment']
     else:
