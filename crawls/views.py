@@ -264,6 +264,7 @@ def inventory_to_dict(arg):
     temp_dict['make'] = row['Make']
     temp_dict['model'] = row['Model']
     temp_dict['trim'] = row['Trim']
+    temp_dict['description'] = row['Description']
     
     return_data.append(temp_dict)
     
