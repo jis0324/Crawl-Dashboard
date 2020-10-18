@@ -125,22 +125,43 @@ def modify_crawl_status_data(crawl_status_data, crawling_date):
 
   if "Start Time" in crawl_status_data:
     temp_dict['start_time'] = crawl_status_data["Start Time"]
+
   if "Completed Time" in crawl_status_data:
     temp_dict['end_time'] = crawl_status_data["Completed Time"]
+
   if "Elapsed Time" in crawl_status_data:
     temp_dict['elapsed_time'] = crawl_status_data["Elapsed Time"]
+
   if "Total Dealer Count" in crawl_status_data:
     temp_dict['completed_dealer_count'] = crawl_status_data["Total Dealer Count"]
+
+  if "Whole Dealer Count" in crawl_status_data:
+    temp_dict['whole_dealer_count'] = crawl_status_data["Whole Dealer Count"]
+
+  if "Filtered Dealer Count" in crawl_status_data:
+    temp_dict['filtered_dealer_count'] = crawl_status_data["Filtered Dealer Count"]
+
+  if "Crawlable Dealer Count" in crawl_status_data:
+    temp_dict['crawlable_dealer_count'] = crawl_status_data["Crawlable Dealer Count"]
+
+  if "Browseable Dealer Count" in crawl_status_data:
+    temp_dict['browseable_dealer_count'] = crawl_status_data["Browseable Dealer Count"]
+
   if "NoVin Dealer Count" in crawl_status_data:
     temp_dict['novin_dealer_count'] = crawl_status_data["NoVin Dealer Count"]
+
   if "NoInventory Dealer Count" in crawl_status_data:
     temp_dict['noinventory_dealer_count'] = crawl_status_data["NoInventory Dealer Count"]
+
   if "NotActive Dealer Count" in crawl_status_data:
     temp_dict['notactive_dealer_count'] = crawl_status_data["NotActive Dealer Count"]
+
   if "Exclude Dealer Count" in crawl_status_data:
     temp_dict['exclude_dealer_count'] = crawl_status_data["Exclude Dealer Count"]
+
   if "Total Inventory Count" in crawl_status_data:
     temp_dict['today_invendory_count'] = crawl_status_data["Total Inventory Count"]
+
 
   return temp_dict
 

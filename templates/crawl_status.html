@@ -21,47 +21,64 @@
         <tbody>
           <tr>
             <td class="font-weight-bolder">Start Time</td>
-            <td>{{ data.start_time }}</td>
+            <td colspan="2">{{ data.start_time }}</td>
           </tr>
           <tr>
             <td class="font-weight-bolder">End Time</td>
-            <td>{{ data.end_time }}</td>
+            <td colspan="2">{{ data.end_time }}</td>
           </tr>
           <tr>
             <td class="font-weight-bolder">Elapsed Time</td>
-            <td>{{ data.elapsed_time }}</td>
+            <td colspan="2">{{ data.elapsed_time }}</td>
+          </tr>
+          <tr>
+            <td class="font-weight-bolder">Total Dealer Count</td>
+            <td colspan="2">{{ data.whole_dealer_count }}</td>
+          </tr>
+          <tr>
+            <td rowspan="7" class="font-weight-bolder">Filtered Dealer Count</td>
+            <td colspan="2">{{ data.filtered_dealer_count }}</td>
+              
+          </tr>
+          <tr>
+            <td>Crawlable Dealers Count</td>
+            <td>{{ data.crawlable_dealer_count }}</td>
+          </tr>
+          <tr>
+            <td>Browseable Dealers Count</td>
+            <td>{{ data.browseable_dealer_count }}</td>
+          </tr>
+          <tr>
+            <td>No-Vin Dealers Count</td>
+            <td>{{ data.novin_dealer_count }} </td>
+          </tr>
+          <tr>
+            <td>No-Inventory Dealers Count</td>
+            <td>{{ data.noinventory_dealer_count }} </td>
+          </tr>
+          <tr>
+            <td>Not-Active Dealers Count</td>
+            <td>{{ data.notactive_dealer_count }} </td>
+          </tr>
+          <tr>
+            <td>Exclude Dealers Count</td>
+            <td>{{ data.exclude_dealer_count }} </td>
           </tr>
           <tr>
             <td class="font-weight-bolder">Completed Dealer Count</td>
-            <td>{{ data.completed_dealer_count }}</td>
+            <td colspan="2">{{ data.completed_dealer_count }}</td>
           </tr>
           <tr>
             <td class="font-weight-bolder">Incompleted Dealer Count</td>
-            <td>{{ data.incompleted_dealer_count }}</td>
-          </tr>
-          <tr>
-            <td class="font-weight-bolder">No-Vin Dealer Count</td>
-            <td>{{ data.novin_dealer_count }}</td>
-          </tr>
-          <tr>
-            <td class="font-weight-bolder">No-Inventory Dealer Count</td>
-            <td>{{ data.noinventory_dealer_count }}</td>
-          </tr>
-          <tr>
-            <td class="font-weight-bolder">Not-Active Dealer Count</td>
-            <td>{{ data.notactive_dealer_count }}</td>
-          </tr>
-          <tr>
-            <td class="font-weight-bolder">Exclude Dealer Count</td>
-            <td>{{ data.exclude_dealer_count }}</td>
+            <td colspan="2">{{ data.incompleted_dealer_count }}</td>
           </tr>
           <tr>
             <td class="font-weight-bolder">Today Inverntory Count</td>
-            <td>{{ data.today_invendory_count }}</td>
+            <td colspan="2">{{ data.today_invendory_count }}</td>
           </tr>
           <tr>
             <td class="font-weight-bolder">Yesterday Inventory Count</td>
-            <td>{{ data.yesteday_invendory_count }}</td>
+            <td colspan="2">{{ data.yesteday_invendory_count }}</td>
           </tr>
         </tbody>
       </table>
