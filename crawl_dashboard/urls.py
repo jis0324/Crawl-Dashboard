@@ -16,9 +16,9 @@ urlpatterns = [
     url(r'^crawlers/$', crawl_views.index, name='crawl_index'),
     url(r'^$', main_views.index, name='home'),
     url(r'^crawlers/(?P<host>[0-9\.\-]+)/(?P<crawl_date>[0-9\-]+)/$', crawl_views.view_summary, name='crawl_summary'),
-    url(r'^crawlers/(?P<host>[0-9\.\-]+)/(?P<crawl_date>[0-9\-]+)/(?P<domain>[A-Za-z0-9\&\-\_\.\s]+)/$', crawl_views.view_inventory, name='crawl_inventory'),
+    url(r'^crawlers/(?P<host>[0-9\.\-]+)/(?P<crawl_date>[0-9\-]+)/(?P<domain>.+)/$', crawl_views.view_inventory, name='crawl_inventory'),
     url(r'^domains/$', domain_views.index, name='domain_index'),
-    url(r'^domains/(?P<domain>[A-Za-z0-9\-\_\.\&\s]+)/(?P<crawl_date>[0-9\-]+)/$', domain_views.domain_summary, name='domain_summary'),
+    url(r'^domains/(?P<domain>.+)/(?P<crawl_date>[0-9\-]+)/$', domain_views.domain_summary, name='domain_summary'),
     url(r'^domains/test_domain/$', domain_views.test_domain, name='test_domain'),
     url(r'^domains/test_cancel/$', domain_views.test_cancel, name='test_cancel'),
     url(r'^domains/view_test/(?P<dealer_id>.+)/$', domain_views.view_test, name='view_test'),
@@ -28,6 +28,7 @@ urlpatterns = [
     url(r'^domains/get_dealer/$', domain_views.get_dealer, name='get_dealer'),
     url(r'^settings/$', main_views.config_settings, name='config_setting'),
     url(r'^crawlers/total_summary/(?P<crawl_date>[0-9\-]+)/$', crawl_views.total_summary, name='total_summary'),
+    url(r'^crawl_status/$', main_views.crawl_status, name='crawl_status'),
 
     # accounts
     url(r'^signup/$', accounts_views.signup, name='signup'),

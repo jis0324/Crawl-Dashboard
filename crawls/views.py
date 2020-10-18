@@ -237,6 +237,8 @@ def summary_to_dict(arg):
       temp_dict['elapsed_time'] = calc_elapsed_time(row['Start Time'], row['End Time'])
       temp_dict['request_count'] = ''
 
+    temp_dict['crawler'] = row['Host Address']
+
     return_data.append(temp_dict)
     
   return return_data

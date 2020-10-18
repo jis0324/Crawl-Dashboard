@@ -35,6 +35,7 @@
         <th>Error State</th>
         <th>Elapsed Time</th>
         <th>Request Count</th>
+        <th>Host</th>
         <th>Action</th>
       </tr>
     </thead>
@@ -52,6 +53,7 @@
           <td>{{ row.error_state }}</td>
           <td>{{ row.elapsed_time }}</td>
           <td>{{ row.request_count }}</td>
+          <td>{{ row.crawler }}</td>
           <td>
             <button class="btn btn-info edit-btn mr-3" data-dealer="{{ row.dealer_id}}">Edit</button>
           </td>

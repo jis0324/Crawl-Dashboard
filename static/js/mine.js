@@ -28,6 +28,14 @@ $(document).ready(function () {
   $('#test_view_detail_inventory_tbl').DataTable({
   }).order([0, 'asc']).draw();
 
+  // datatable for unexpected urls table
+  $('#unexpected_urls_tbl').DataTable({
+  }).order([0, 'asc']).draw();
+
+  // datatable for crawl status table
+  $('#crawl_status_tbl').DataTable({
+  }).order([0, 'asc']).draw();
+
   $('#domains_tbl').on('click', '.test-btn', function() {
     show_loading();
     let btn = $(this);

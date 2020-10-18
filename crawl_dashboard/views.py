@@ -8,6 +8,7 @@ from django.conf import settings
 
 mongoclient = pymongo.MongoClient("mongodb://localhost:27017/")
 db = mongoclient["dealer_crawl_db"]
+daily_log_collection = db['daily_log']
 unexpected_urls_collection = db['unexpected_urls']
 
 @login_required
@@ -17,16 +18,14 @@ def index(request):
 
 @login_required
 def unexpected_urls(request):
-  unexpected_url_data = list()
-  now = datetime.datetime.now()  
-  today_date = now.strftime("%Y-%m-%d")
+  today_date = datetime.date.today()
   
   if request.method == "POST":
     crawl_date = request.POST['selected_date']
-    unexpected_url_data = get_data_from_crawl_date(crawl_date)
+    unexpected_url_data = get_unexpected_url_data_from_crawl_date(crawl_date)
     return render(request, 'unexpected_urls.html', {'data': unexpected_url_data, 'today_date' : today_date, 'crawl_date' : crawl_date})
 
-  crawl_date, unexpected_url_data = get_data()
+  crawl_date, unexpected_url_data = get_unexpected_url_data()
   return render(request, 'unexpected_urls.html', {'data': unexpected_url_data, 'today_date' : today_date, 'crawl_date' : crawl_date})
 
 @login_required
@@ -75,7 +74,77 @@ def config_settings(request):
 
     return render(request, 'settings.html', {'data' : return_data})
 
-def get_data():
+@login_required
+def crawl_status(request):
+  today_date = datetime.date.today()
+
+  if request.method == "POST":
+    crawl_date = request.POST['selected_date']
+    crawl_status_data = get_crawl_status_data_from_crawl_date(crawl_date)
+    return render(request, 'crawl_status.html', {'data': crawl_status_data, 'today_date' : str(today_date), 'crawl_date' : str(crawl_date)})
+
+  crawl_date, crawl_status_data = get_crawl_status_data()
+  return render(request, 'crawl_status.html', {'data': crawl_status_data, 'today_date' : str(today_date), 'crawl_date' : str(crawl_date)})
+
+
+def get_crawl_status_data():
+  global daily_log_collection
+  temp_dict = dict()
+  today_date = datetime.date.today()
+  yesterday_date = today_date - datetime.timedelta(days=1)
+
+  query = {"Date": {"$regex" : "^" + str(today_date)}, "Crawler Type" : "Server"}
+  if daily_log_collection.count_documents(query) > 0:
+    crawl_status_data = daily_log_collection.find_one(query)
+
+    return str(today_date), modify_crawl_status_data(crawl_status_data, today_date)
+  else:
+    query = {"Date": {"$regex" : "^" + str(yesterday_date)}, "Crawler Type" : "Server"}
+    crawl_status_data = daily_log_collection.find_one(query)
+    return str(yesterday_date), modify_crawl_status_data(crawl_status_data, yesterday_date)
+
+
+def get_crawl_status_data_from_crawl_date(crawl_date):
+  global daily_log_collection
+  temp_dict = dict()
+
+  query = {"Date": {"$regex" : "^" + str(crawl_date)}, "Crawler Type" : "Server"}
+  crawl_status_data = daily_log_collection.find_one(query)
+  return modify_crawl_status_data(crawl_status_data, crawl_date)
+
+def modify_crawl_status_data(crawl_status_data, crawling_date):
+  global unexpected_urls_collection, daily_log_collection
+  yesterday_date = datetime.datetime.date(datetime.datetime.strptime(str(crawling_date), '%Y-%m-%d')) - datetime.timedelta(days=1)
+
+  temp_dict = dict()
+  query = {"date": {"$regex": "^" + str(crawling_date)}}
+  temp_dict['incompleted_dealer_count'] = unexpected_urls_collection.count_documents(query)
+
+  query = {"Date": {"$regex": "^" + str(yesterday_date)}, "Crawler Type" : "Server"}
+  temp_dict['yesteday_invendory_count'] = dict(daily_log_collection.find_one(query)).get("Total Inventory Count")
+
+  if "Start Time" in crawl_status_data:
+    temp_dict['start_time'] = crawl_status_data["Start Time"]
+  if "Completed Time" in crawl_status_data:
+    temp_dict['end_time'] = crawl_status_data["Completed Time"]
+  if "Elapsed Time" in crawl_status_data:
+    temp_dict['elapsed_time'] = crawl_status_data["Elapsed Time"]
+  if "Total Dealer Count" in crawl_status_data:
+    temp_dict['completed_dealer_count'] = crawl_status_data["Total Dealer Count"]
+  if "NoVin Dealer Count" in crawl_status_data:
+    temp_dict['novin_dealer_count'] = crawl_status_data["NoVin Dealer Count"]
+  if "NoInventory Dealer Count" in crawl_status_data:
+    temp_dict['noinventory_dealer_count'] = crawl_status_data["NoInventory Dealer Count"]
+  if "NotActive Dealer Count" in crawl_status_data:
+    temp_dict['notactive_dealer_count'] = crawl_status_data["NotActive Dealer Count"]
+  if "Exclude Dealer Count" in crawl_status_data:
+    temp_dict['exclude_dealer_count'] = crawl_status_data["Exclude Dealer Count"]
+  if "Total Inventory Count" in crawl_status_data:
+    temp_dict['today_invendory_count'] = crawl_status_data["Total Inventory Count"]
+
+  return temp_dict
+
+def get_unexpected_url_data():
   global unexpected_urls_collection
 
   unexpected_urls_data = list()
@@ -92,7 +161,7 @@ def get_data():
     unexpected_urls_data = list(unexpected_urls_collection.find(query))
     return str(yesterday_date), unexpected_urls_data
 
-def get_data_from_crawl_date(crawl_date):
+def get_unexpected_url_data_from_crawl_date(crawl_date):
   global unexpected_urls_collection
 
   unexpected_urls_data = list()
