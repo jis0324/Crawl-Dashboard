@@ -14,7 +14,7 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SERVER_DIR = '/data/Server'
+SERVER_DIR = '/data/server'
 # SERVER_DIR = 'D:/Work/MyWork/2020.3.13-dealer/Server'
 
 # Quick-start development settings - unsuitable for production

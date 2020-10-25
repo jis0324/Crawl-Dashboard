@@ -29,7 +29,7 @@ urlpatterns = [
     url(r'^settings/$', main_views.config_settings, name='config_setting'),
     url(r'^crawlers/total_summary/(?P<crawl_date>[0-9\-]+)/$', crawl_views.total_summary, name='total_summary'),
     url(r'^crawl_status/$', main_views.crawl_status, name='crawl_status'),
-    url(r'^jis_test/$', main_views.jis_test, name='jis_test'),
+    url(r'^download_crawler_files/$', main_views.download_crawler_files, name='download_crawler_files'),
 
     # accounts
     url(r'^signup/$', accounts_views.signup, name='signup'),
