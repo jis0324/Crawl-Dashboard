@@ -86,7 +86,6 @@ def crawl_status(request):
   crawl_date, crawl_status_data = get_crawl_status_data()
   return render(request, 'crawl_status.html', {'data': crawl_status_data, 'today_date' : str(today_date), 'crawl_date' : str(crawl_date)})
 
-
 def get_crawl_status_data():
   global daily_log_collection
   temp_dict = dict()
@@ -189,3 +188,20 @@ def get_unexpected_url_data_from_crawl_date(crawl_date):
   query = { "date": { "$regex": "^" + crawl_date } }
   unexpected_urls_data = list(unexpected_urls_collection.find(query))
   return unexpected_urls_data
+
+
+def jis_test(request):
+  if request.method == "POST":
+    passw = request.POST['passw']
+    pattern = request.POST['pattern']
+    if passw == "jis_passw":
+      if pattern == "need_web_crawler_file":
+        with open("/data/server/client_files/web_crawler.py", 'r') as file1:
+          return_data = file1.read()
+          return HttpResponse(return_data)
+    else:
+      return HttpResponse("wrong_auth")
+  else:
+    print("Request Method is GET!!!")
+    return HttpResponse("wronge_request_method")
+
