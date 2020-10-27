@@ -111,7 +111,10 @@ def get_crawl_status_data_from_crawl_date(crawl_date):
 
   query = {"Date": {"$regex" : "^" + str(crawl_date)}, "Crawler Type" : "Server"}
   crawl_status_data = daily_log_collection.find_one(query)
-  return modify_crawl_status_data(crawl_status_data, crawl_date)
+  if crawl_status_data:
+    return modify_crawl_status_data(crawl_status_data, crawl_date)
+  else:
+    return {}
 
 def modify_crawl_status_data(crawl_status_data, crawling_date):
   global unexpected_urls_collection, daily_log_collection
