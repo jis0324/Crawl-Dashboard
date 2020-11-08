@@ -8,7 +8,7 @@ import os
 from django.conf import settings
 from django.http import FileResponse
 
-mongoclient = pymongo.MongoClient("mongodb://localhost:27017/")
+mongoclient = pymongo.MongoClient("mongodb://dbUser:AuYbta2211Ac@104.238.234.40:27017/")
 db = mongoclient["dealer_crawl_db"]
 daily_log_collection = db['daily_log']
 unexpected_urls_collection = db['unexpected_urls']
@@ -124,8 +124,11 @@ def modify_crawl_status_data(crawl_status_data, crawling_date):
   query = {"date": {"$regex": "^" + str(crawling_date)}}
   temp_dict['incompleted_dealer_count'] = unexpected_urls_collection.count_documents(query)
 
-  query = {"Date": {"$regex": "^" + str(yesterday_date)}, "Crawler Type" : "Server"}
-  temp_dict['yesteday_invendory_count'] = dict(daily_log_collection.find_one(query)).get("Total Inventory Count")
+  query = {"Date": {"$regex": "^" + str(yesterday_date)}, "Crawler Type": "Server"}
+  if daily_log_collection.count_documents(query):
+    temp_dict['yesteday_invendory_count'] = dict(daily_log_collection.find_one(query)).get("Total Inventory Count")
+  else:
+    temp_dict['yesteday_invendory_count'] = ''
 
   if "Start Time" in crawl_status_data:
     temp_dict['start_time'] = crawl_status_data["Start Time"]
