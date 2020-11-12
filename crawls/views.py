@@ -5,6 +5,7 @@ from django.shortcuts import render, redirect
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 import pymongo
+import re
 
 mongoclient = pymongo.MongoClient("mongodb://dbUser:AuYbta2211Ac@104.238.234.40:27017/")
 db = mongoclient["dealer_crawl_db"]
@@ -89,12 +90,12 @@ def get_data_from_today_log():
   today_date = datetime.date.today()
   yesterday_date = today_date - datetime.timedelta(days=1)
 
-  query = { "Date": { "$regex": "^" + str(today_date) } }
+  query = {"Date": {"$regex": "^" + str(today_date)}}
   if daily_log_collection.count_documents(query) > 0:
     crawl_log_data = list(daily_log_collection.find(query))
     return str(today_date), crawl_log_data
   else:
-    query = { "Date": { "$regex": "^" + str(yesterday_date) } }
+    query = {"Date": {"$regex": "^" + str(yesterday_date)}}
     crawl_log_data = list(daily_log_collection.find(query))
     return str(yesterday_date), crawl_log_data
 
@@ -163,13 +164,18 @@ def log_to_dict(arg):
     temp_dict = dict()
     temp_dict['date'] = row['Date']
     temp_dict['host'] = row['Host']
-    temp_dict['start_time'] = row['Start Time']
+    temp_dict['start_time'] = row['Date']
     temp_dict['completed_time'] = row['Completed Time']
     temp_dict['elapsed_time'] = row['Elapsed Time']
-    temp_dict['dealer_count'] = row['Total Dealer Count']
+    if "Total Dealer Count" in row:
+      temp_dict['dealer_count'] = row['Total Dealer Count']
+    elif "Completed Dealer Count" in row:
+      temp_dict['dealer_count'] = row["Completed Dealer Count"]
+
     temp_dict['inventory_count'] = row['Total Inventory Count']
     temp_dict['crawl_type'] = ''
-    if index == 0:
+
+    if ':' not in str(row['URL Range']):
       temp_dict['url_count'] = str(row['URL Range'])
     else:
       url_ranges = str(row['URL Range']).split(':')
@@ -187,6 +193,7 @@ def log_to_dict(arg):
           count = end_url - start_url + 1
           total_count += count
       temp_dict['url_count'] = total_count
+
     return_data.append(temp_dict)
     
   return return_data
@@ -234,7 +241,7 @@ def summary_to_dict(arg):
       temp_dict['elapsed_time'] = row['Elapsed Time']
       temp_dict['request_count'] = row['Request Count']
     else:
-      temp_dict['elapsed_time'] = calc_elapsed_time(row['Start Time'], row['End Time'])
+      temp_dict['elapsed_time'] = calc_elapsed_time(row['Date'], row['End Time'])
       temp_dict['request_count'] = ''
 
     temp_dict['crawler'] = row['Host Address']
