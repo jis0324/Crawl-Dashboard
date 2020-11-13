@@ -26,7 +26,7 @@ def index(request):
       
   data = log_to_dict(crawl_log_data)
 
-  return render(request, 'crawl.html', {'data': data, 'today_date' : today_date, 'crawl_date' : crawl_date})
+  return render(request, 'crawl.html', {'data': data, 'today_date': today_date, 'crawl_date' : crawl_date})
 
 @login_required
 def view_summary(request, host, crawl_date):
@@ -40,7 +40,7 @@ def view_summary(request, host, crawl_date):
     crawl_summary_data = get_data_from_summary(host, crawl_date)
   
   data = summary_to_dict(crawl_summary_data)
-  return render(request, 'crawler_summary.html', {'data': data, 'today_date' : today_date, 'crawl_date' : crawl_date, 'host_name' : host})
+  return render(request, 'crawler_summary.html', {'data': data, 'today_date': today_date, 'crawl_date': crawl_date, 'host_name' : host})
 
 @login_required
 def view_inventory(request, host, crawl_date, domain):
@@ -164,7 +164,12 @@ def log_to_dict(arg):
     temp_dict = dict()
     temp_dict['date'] = row['Date']
     temp_dict['host'] = row['Host']
-    temp_dict['start_time'] = row['Date']
+
+    if row["Crawler Type"] == "Server":
+      temp_dict['start_time'] = row['Date']
+    else:
+      temp_dict['start_time'] = row['Start Time']
+
     temp_dict['completed_time'] = row['Completed Time']
     temp_dict['elapsed_time'] = row['Elapsed Time']
     if "Total Dealer Count" in row:
@@ -226,7 +231,7 @@ def summary_to_dict(arg):
     temp_dict['city'] = row['City']
     temp_dict['state'] = row['State']
     temp_dict['zip'] = row['Zip']
-    temp_dict['domain'] = row['DOMAIN']
+    temp_dict['domain'] = row['Website']
     if row['Vin Count'] == "N/A":
       temp_dict['vin_count'] = '0'
     else:
@@ -263,7 +268,7 @@ def inventory_to_dict(arg):
     else:
       temp_dict['url'] = row['URL']
       temp_dict['domain'] = row['Domain']
-      
+
     temp_dict['vin'] = row['VIN']
     temp_dict['price'] = row['Price']
     temp_dict['mileage'] = row['Mileage']
