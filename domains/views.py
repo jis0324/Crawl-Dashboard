@@ -63,7 +63,7 @@ def test_domain(request):
         "Dealer ID" : request.POST['dealer_id'],
         "Dealer Name" : request.POST['dealer_name'],
         "City" : request.POST['dealer_city'],
-        "State / Province" : request.POST['dealer_state'],
+        "State" : request.POST['dealer_state'],
         "Zip" : request.POST['dealer_zip'],
         "Website" : make_url(request.POST['dealer_website']),
         "Category" : request.POST['dealer_category'],
@@ -76,7 +76,7 @@ def test_domain(request):
         os.remove(input_csv_path)
       
       with open(input_csv_path, 'w', newline="") as input_file:
-        fieldnames = ["Dealer ID", "Dealer Name", "City", "State / Province", "Zip", "Website", "Category", "Crawl Type", "Redirect URLs", "id",]
+        fieldnames = ["Dealer ID", "Dealer Name", "City", "State", "Zip", "Website", "Category", "Crawl Type", "Redirect URLs", "id",]
         writer = csv.DictWriter(input_file, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerow(input_dict)
@@ -190,7 +190,7 @@ def update_input(request):
           temp_list = list(csv.DictReader(input_file))
 
         with open(settings.SERVER_DIR + '/input.csv', 'w', encoding="latin1", errors="ignore") as input_file:
-          fieldnames = ["Dealer ID", "Dealer Name", "City", "State / Province", "Zip", "Website", "Category", "Crawl Type", "Comment", "Redirect URLs"]
+          fieldnames = ["Dealer ID", "Dealer Name", "City", "State", "Zip", "Website", "Category", "Crawl Type", "Comment", "Redirect URLs"]
           writer = csv.DictWriter(input_file, fieldnames=fieldnames)
           writer.writeheader()
           for row_dict in temp_list:
@@ -213,7 +213,7 @@ def input_to_dict(arg1, arg2):
     temp_dict['dealer_id'] = row['Dealer ID']
     temp_dict['dealer_name'] = row['Dealer Name']
     temp_dict['city'] = row['City']
-    temp_dict['state'] = row['State / Province']
+    temp_dict['state'] = row['State']
     temp_dict['zip'] = row['Zip']
     temp_dict['website'] = row['Website']
     temp_dict['domain'] = make_domain(row['Website'])
@@ -241,7 +241,8 @@ def input_to_dict(arg1, arg2):
     temp_dict['test_status'] = test_status
     temp_dict['history_status'] = history_status
 
-    return_data.append(temp_dict)
+    if temp_dict["domain"]:
+      return_data.append(temp_dict)
     
   return return_data
 

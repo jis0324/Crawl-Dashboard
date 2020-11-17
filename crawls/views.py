@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 import pymongo
 import re
 
-mongoclient = pymongo.MongoClient("mongodb://dbUser:AuYbta2211Ac@104.238.234.40:27017/")
+mongoclient = pymongo.MongoClient(settings.DB_PATH)
 db = mongoclient["dealer_crawl_db"]
 daily_log_collection = db['daily_log']
 
@@ -30,7 +30,7 @@ def index(request):
 
 @login_required
 def view_summary(request, host, crawl_date):
-  now = datetime.datetime.now()  
+  now = datetime.datetime.now()
   today_date = now.strftime("%Y-%m-%d")
   crawl_summary_data = list()
   if request.method == 'POST':
@@ -68,10 +68,10 @@ def total_summary(request, crawl_date):
     return redirect('total_summary', crawl_date=crawl_date)
   else:
     crawl_summary_data = get_total_summary(crawl_date)
-  
+
   data = summary_to_dict(crawl_summary_data)
-  
-  return render(request, 'total_summary.html', {'data': data, 'today_date' : today_date, 'crawl_date' : crawl_date, 'host_name' : "104.238.234.40"})
+
+  return render(request, 'total_summary.html', {'data': data, 'today_date': today_date, 'crawl_date': crawl_date, 'host_name': settings.SERVER_HOST})
 
 def get_data_from_daily_log(crawl_date):
   global daily_log_collection
@@ -155,7 +155,6 @@ def get_total_summary(crawl_date):
       summary_file = files[-1]
       with open(summary_path + summary_file, 'r', encoding="latin1", errors="ignore") as summary:
         return_data = list(csv.DictReader(summary))
-  
   return return_data
 
 def log_to_dict(arg):
@@ -222,6 +221,19 @@ def calc_elapsed_time(start_time, end_time):
   except:
     return ''
 
+def make_domain(url):
+  try:
+    if "#" in url:
+      url = url.split("#")[0]
+    if re.search(r"http\:\/+|https\:\/+", url):
+      url = url.split(re.search(r"http\:\/+|https\:\/+", url).group(), 1)[1].split("/", 1)[0].split('?', 1)[0]
+    if "www" in url:
+      url = url[4:]
+
+    return url.lower()
+  except:
+    return url.lower()
+
 def summary_to_dict(arg):
   return_data = list()
   for row in arg:
@@ -231,7 +243,7 @@ def summary_to_dict(arg):
     temp_dict['city'] = row['City']
     temp_dict['state'] = row['State']
     temp_dict['zip'] = row['Zip']
-    temp_dict['domain'] = row['Website']
+    temp_dict['domain'] = make_domain(row['Website'])
     if row['Vin Count'] == "N/A":
       temp_dict['vin_count'] = '0'
     else:
