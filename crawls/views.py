@@ -263,8 +263,11 @@ def summary_to_dict(arg):
 
     temp_dict['crawler'] = row['Host Address']
 
+    if not temp_dict["domain"]:
+      continue
+
     return_data.append(temp_dict)
-    
+
   return return_data
 
 def inventory_to_dict(arg):

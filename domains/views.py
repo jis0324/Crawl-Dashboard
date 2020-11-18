@@ -208,7 +208,6 @@ def update_input(request):
 def input_to_dict(arg1, arg2):
   return_data = list()
   for row in arg1:
-    print(row)
     temp_dict = dict()
     temp_dict['dealer_id'] = row['Dealer ID']
     temp_dict['dealer_name'] = row['Dealer Name']

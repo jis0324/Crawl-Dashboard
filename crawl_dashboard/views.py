@@ -15,7 +15,6 @@ unexpected_urls_collection = db['unexpected_urls']
 
 @login_required
 def index(request):
-  print(request.user)
   return redirect('crawl_index')
 
 @login_required
@@ -94,13 +93,13 @@ def get_crawl_status_data():
   today_date = datetime.date.today()
   yesterday_date = today_date - datetime.timedelta(days=1)
 
-  query = {"Date": {"$regex" : "^" + str(today_date)}, "Crawler Type" : "Server"}
+  query = {"Date": {"$regex" : "^" + str(today_date)}, "Crawler Type": "Server"}
   if daily_log_collection.count_documents(query) > 0:
     crawl_status_data = daily_log_collection.find_one(query)
 
     return str(today_date), modify_crawl_status_data(crawl_status_data, today_date)
   else:
-    query = {"Date": {"$regex" : "^" + str(yesterday_date)}, "Crawler Type" : "Server"}
+    query = {"Date": {"$regex": "^" + str(yesterday_date)}, "Crawler Type": "Server"}
     crawl_status_data = daily_log_collection.find_one(query)
     return str(yesterday_date), modify_crawl_status_data(crawl_status_data, yesterday_date)
 
