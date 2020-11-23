@@ -10,12 +10,17 @@ import re
 mongoclient = pymongo.MongoClient(settings.DB_PATH)
 db = mongoclient["dealer_crawl_db"]
 daily_log_collection = db['daily_log']
+unexpected_urls_collection = db['unexpected_urls']
+config_collection = db['config']
+input_list_collection = db['input_list']
+summary_collection = db['summary_result']
+inventory_collection = db['inventory_result']
 
 @login_required
 def index(request):
 
   crawl_log_data = list()
-  now = datetime.datetime.now()  
+  now = datetime.datetime.now()
   today_date = now.strftime("%Y-%m-%d")
 
   if request.method == 'POST':
@@ -23,10 +28,10 @@ def index(request):
     crawl_log_data = get_data_from_daily_log(crawl_date)
   else:
     crawl_date, crawl_log_data = get_data_from_today_log()
-      
+
   data = log_to_dict(crawl_log_data)
 
-  return render(request, 'crawl.html', {'data': data, 'today_date': today_date, 'crawl_date' : crawl_date})
+  return render(request, 'crawl.html', {'data': data, 'today_date': today_date, 'crawl_date': crawl_date})
 
 @login_required
 def view_summary(request, host, crawl_date):
@@ -40,7 +45,7 @@ def view_summary(request, host, crawl_date):
     crawl_summary_data = get_data_from_summary(host, crawl_date)
   
   data = summary_to_dict(crawl_summary_data)
-  return render(request, 'crawler_summary.html', {'data': data, 'today_date': today_date, 'crawl_date': crawl_date, 'host_name' : host})
+  return render(request, 'crawler_summary.html', {'data': data, 'today_date': today_date, 'crawl_date': crawl_date, 'host_name': host})
 
 @login_required
 def view_inventory(request, host, crawl_date, domain):
@@ -56,7 +61,7 @@ def view_inventory(request, host, crawl_date, domain):
   crawl_inventory_data = get_data_from_inventory(host, crawl_date, domain)
   
   data = inventory_to_dict(crawl_inventory_data)
-  return render(request, 'crawler_inventory.html', {'data': data, 'today_date' : today_date, 'crawl_date' : crawl_date, 'host_name' : host, 'domain' : domain})
+  return render(request, 'crawler_inventory.html', {'data': data, 'today_date': today_date, 'crawl_date': crawl_date, 'host_name': host, 'domain': domain})
 
 @login_required
 def total_summary(request, crawl_date):
@@ -100,61 +105,67 @@ def get_data_from_today_log():
     return str(yesterday_date), crawl_log_data
 
 def get_data_from_summary(host, crawl_date):
-  return_data = list()
-  summary_path = settings.SERVER_DIR + '/output/' + crawl_date + '/'
-  
-  if os.path.exists(summary_path):
-    summary_csv_prefix = 'summary_' + crawl_date
-    crawl_summary_data = list()
-    files = []
-    files = [i for i in os.listdir(summary_path) if os.path.isfile(os.path.join(summary_path,i)) and summary_csv_prefix in i]
-    if files:
-      summary_file = files[-1]
-      with open(summary_path + summary_file, 'r', encoding="latin1", errors="ignore") as summary:
-        crawl_summary_data = list(csv.DictReader(summary))
-    
-    for row in crawl_summary_data:
-      if row['Host Address'] == host:
-        return_data.append(row)
+  summary_query = {"Date": {"$regex": "^" + str(crawl_date)}, "Host Address": host}
+  return_data = summary_collection.find(summary_query)
+  # summary_path = settings.SERVER_DIR + '/output/' + crawl_date + '/'
+  #
+  # if os.path.exists(summary_path):
+  #   summary_csv_prefix = 'summary_' + crawl_date
+  #   crawl_summary_data = list()
+  #   files = []
+  #   files = [i for i in os.listdir(summary_path) if os.path.isfile(os.path.join(summary_path,i)) and summary_csv_prefix in i]
+  #   if files:
+  #     summary_file = files[-1]
+  #     with open(summary_path + summary_file, 'r', encoding="latin1", errors="ignore") as summary:
+  #       crawl_summary_data = list(csv.DictReader(summary))
+  #
+  #   for row in crawl_summary_data:
+  #     if row['Host Address'] == host:
+  #       return_data.append(row)
   return return_data
 
 def get_data_from_inventory(host, crawl_date, domain):
   return_data = list()
-  summary_path = settings.SERVER_DIR + '/output/' + crawl_date + '/'
-  
-  if os.path.exists(summary_path):
-    summary_csv_prefix = 'inventory_' + crawl_date
-    crawl_inventory_data = list()
-    files = []
-    files = [i for i in os.listdir(summary_path) if os.path.isfile(os.path.join(summary_path,i)) and summary_csv_prefix in i]
-    if files:
-      summary_file = files[-1]
-      
-      with open(summary_path + summary_file, 'r', encoding="latin1", errors="ignore") as summary:
-        crawl_inventory_data = list(csv.DictReader(summary))
-    
-    for row in crawl_inventory_data:
-      if 'DOMAIN' in row:
-        if row['DOMAIN'] == domain:
-          return_data.append(row)
-      elif 'Domain' in row:
-        if row['Domain'] == domain:
-          return_data.append(row)
+  # summary_path = settings.SERVER_DIR + '/output/' + crawl_date + '/'
+  #
+  # if os.path.exists(summary_path):
+  #   summary_csv_prefix = 'inventory_' + crawl_date
+  #   crawl_inventory_data = list()
+  #   files = []
+  #   files = [i for i in os.listdir(summary_path) if os.path.isfile(os.path.join(summary_path,i)) and summary_csv_prefix in i]
+  #   if files:
+  #     summary_file = files[-1]
+  #
+  #     with open(summary_path + summary_file, 'r', encoding="latin1", errors="ignore") as summary:
+  #       crawl_inventory_data = list(csv.DictReader(summary))
+  #
+  #   for row in crawl_inventory_data:
+  #     if 'DOMAIN' in row:
+  #       if row['DOMAIN'] == domain:
+  #         return_data.append(row)
+  #     elif 'Domain' in row:
+  #       if row['Domain'] == domain:
+  #         return_data.append(row)
 
+  inventory_query = {"Date": {"$regex": "^" + str(crawl_date)}, "Host Address": host, "Domain": domain}
+  return_data = inventory_collection.find(inventory_query)
   return return_data
 
 def get_total_summary(crawl_date):
   return_data = list()
-  summary_path = settings.SERVER_DIR + '/output/' + crawl_date + '/'
-  
-  if os.path.exists(summary_path):
-    summary_csv_prefix = 'summary_' + crawl_date
-    files = []
-    files = [i for i in os.listdir(summary_path) if os.path.isfile(os.path.join(summary_path,i)) and summary_csv_prefix in i]
-    if files:
-      summary_file = files[-1]
-      with open(summary_path + summary_file, 'r', encoding="latin1", errors="ignore") as summary:
-        return_data = list(csv.DictReader(summary))
+  # summary_path = settings.SERVER_DIR + '/output/' + crawl_date + '/'
+  #
+  # if os.path.exists(summary_path):
+  #   summary_csv_prefix = 'summary_' + crawl_date
+  #   files = []
+  #   files = [i for i in os.listdir(summary_path) if os.path.isfile(os.path.join(summary_path,i)) and summary_csv_prefix in i]
+  #   if files:
+  #     summary_file = files[-1]
+  #     with open(summary_path + summary_file, 'r', encoding="latin1", errors="ignore") as summary:
+  #       return_data = list(csv.DictReader(summary))
+
+  total_summary_query = {"Date": {"$regex": "^" + str(crawl_date)}}
+  return_data = summary_collection.find(total_summary_query)
   return return_data
 
 def log_to_dict(arg):
@@ -177,7 +188,6 @@ def log_to_dict(arg):
       temp_dict['dealer_count'] = row["Completed Dealer Count"]
 
     temp_dict['inventory_count'] = row['Total Inventory Count']
-    temp_dict['crawl_type'] = ''
 
     if ':' not in str(row['URL Range']):
       temp_dict['url_count'] = str(row['URL Range'])
@@ -197,6 +207,9 @@ def log_to_dict(arg):
           count = end_url - start_url + 1
           total_count += count
       temp_dict['url_count'] = total_count
+
+    if "crawl_type" not in temp_dict:
+      temp_dict['crawl_type'] = row["Crawler Type"]
 
     return_data.append(temp_dict)
     
