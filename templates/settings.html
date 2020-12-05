@@ -15,62 +15,98 @@
     {% csrf_token %}
     <div class="container">
       <div class="row">
-        <div class="col-md-6 col-sm-12">
+        <div class="col-md-4 col-sm-12">
           <div class="form-group">
             <label for="setting_host">HOST : </label>
             <input type="text" id="setting_host" name="setting_host" class="form-control" value="{{data.host}}" disabled>
           </div>
+        </div>
+        <div class="col-md-4 col-sm-12">
+          <div class="form-group">
+            <label for="setting_port">PORT : </label>
+            <input type="number" id="setting_port" name="setting_port" class="form-control" value="{{data.port}}" disabled>
+          </div>
+        </div>
+        <div class="col-md-4 col-sm-12">
+          <div class="form-group">
+            <label for="setting_interval_time">CRAWLING INTERVAL TIME : </label>
+            <input type="number" id="setting_interval_time" name="setting_interval_time" class="form-control" value="{{data.crawler_interval_time}}" disabled>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-4 col-sm-12">
           <div class="form-group">
             <label for="setting_start_time"> CRAWLERs START TIME: </label>
             <input type="text" id="setting_start_time" name="setting_start_time" class="form-control" value="{{data.crawler_start_time}}" disabled>
           </div>
-          <div class="form-group">
-            <label for="setting_url_count_per_scrapy_crawler">URL COUNT PER SCRAPY CRAWLER : </label>
-            <input type="text" id="setting_url_count_per_scrapy_crawler" name="setting_url_count_per_scrapy_crawler" class="form-control" value="{{data.url_per_spider_crawler}}" disabled>
-          </div>
+        </div>
+        <div class="col-md-4 col-sm-12">
           <div class="form-group">
             <label for="setting_process_count">PROCESS COUNT PER CRAWLER : </label>
-            <input type="text" id="setting_process_count" name="setting_process_count" class="form-control" value="{{data.process_per_crawler}}" disabled>
-          </div>
-          <div class="form-group">
-            <label for="setting_not_available_repeat_count">REQUEST_REPEAT_COUNT (NOT_AVAILABLE) : </label>
-            <input type="text" id="setting_not_available_repeat_count" name="setting_not_available_repeat_count" class="form-control" value="{{data.not_available_request_repeat_count}}" disabled>
-          </div>
-          <div class="form-group">
-            <label for="setting_scrapy_crawlers">SCRAPY CRAWLERs : </label>
-            <textarea type="text" id="setting_scrapy_crawlers" name="setting_scrapy_crawlers" class="form-control" rows="10" disabled>{{data.spider_crawlers|join:"&#10;"|cut:" "}}</textarea>
+            <input type="number" id="setting_process_count" name="setting_process_count" class="form-control" value="{{data.process_per_crawler}}" disabled>
           </div>
         </div>
-        <div class="col-md-6 col-sm-12">
+        <div class="col-md-4 col-sm-12">
           <div class="form-group">
-            <label for="setting_port">PORT : </label>
-            <input type="text" id="setting_port" name="setting_port" class="form-control" value="{{data.port}}" disabled>
+            <label for="setting_not_available_repeat_count">REQUEST_REPEAT_COUNT : </label>
+            <input type="number" id="setting_not_available_repeat_count" name="setting_not_available_repeat_count" class="form-control" value="{{data.not_available_request_repeat_count}}" disabled>
           </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-4 col-sm-12">
           <div class="form-group">
-            <label for="setting_interval_time">CRAWLERs INTERVAL TIME : </label>
-            <input type="text" id="setting_interval_time" name="setting_interval_time" class="form-control" value="{{data.crawler_interval_time}}" disabled>
+            <label for="setting_browseable_process_num">BROWSEABLE CRAWLER PROCESS NUMBER: </label>
+            <input type="text" id="setting_browseable_process_num" name="setting_browseable_process_num" class="form-control" value="{{data.browseable_process_num}}" disabled>
           </div>
+        </div>
+        <div class="col-md-4 col-sm-12"></div>
+        <div class="col-md-4 col-sm-12">
           <div class="form-group">
-            <label for="setting_url_count_per_selenium_crawler">URL COUNT PER SELENIUM CRAWLER : </label>
-            <input type="text" id="setting_url_count_per_selenium_crawler" name="setting_url_count_per_selenium_crawler" class="form-control" value="{{data.url_per_selenium_crawler}}" disabled>
+            <label for="setting_browseable_thread_count">THREAD COUNT PER BROWSEABLE CRAWLER : </label>
+            <input type="number" id="setting_browseable_thread_count" name="setting_browseable_thread_count" class="form-control" value="{{data.browseable_thread_count}}" disabled>
           </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-4 col-sm-12">
           <div class="form-group">
-            <label for="setting_crawler_file_update_flag">CRAWLER FILES UPDATE FLAG : </label>
+            <label for="setting_crawler_file_update_flag">CRAWLER FILEs UPDATE FLAG : </label>
             <select name="setting_crawler_file_update_flag" id="setting_crawler_file_update_flag" class="form-control" disabled>
               <option value="True" {%if data.update_status == "True"%}selected{%endif%}>TRUE</option>
               <option value="False" {%if data.update_status == "False"%}selected{%endif%}>FALSE</option>
             </select>
           </div>
+        </div>
+        <div class="col-md-4 col-sm-12">
+        </div>
+        <div class="col-md-4 col-sm-12">
           <div class="form-group">
-            <label for=""> : </label>
-            <input type="text" id="" name="" class="form-control" value="" disabled>
-          </div>
-          <div class="form-group">
-            <label for="setting_selenium_crawlers">SELENIUM CRAWLERs : </label>
-            <textarea type="text" id="setting_selenium_crawlers" name="setting_selenium_crawlers" class="form-control" rows="10" disabled>{{data.selenium_crawlers|join:"&#10;"}}</textarea>
+            <label for="setting_dealer_list_reinsert_flag">DEALERs LIST RE-INSERT FLAG : </label>
+            <select name="setting_dealer_list_reinsert_flag" id="setting_dealer_list_reinsert_flag" class="form-control" disabled>
+              <option value="True" {%if data.dealer_list_reinsert_flag == "True"%}selected{%endif%}>TRUE</option>
+              <option value="False" {%if data.dealer_list_reinsert_flag == "False"%}selected{%endif%}>FALSE</option>
+            </select>
           </div>
         </div>
       </div>
+      <div class="row">
+        <div class="col-md-6 col-sm-12">
+          <div class="form-group">
+            <label for="setting_scrapy_crawlers">Crawlable CRAWLERs : </label>
+            <textarea type="text" id="setting_scrapy_crawlers" name="setting_scrapy_crawlers" class="form-control" rows="10" disabled>{{data.crawlable_crawlers|join:"&#10;"|cut:" "}}</textarea>
+          </div>
+        </div>
+        <div class="col-md-6 col-sm-12">
+          <div class="form-group">
+            <label for="setting_selenium_crawlers">Browseable CRAWLERs : </label>
+            <textarea type="text" id="setting_selenium_crawlers" name="setting_selenium_crawlers" class="form-control" rows="10" disabled>{{data.browseable_crawlers|join:"&#10;"}}</textarea>
+          </div>
+        </div>
+
+      </div>
+
       <button type="button" class="btn btn-success setting-edit-btn d-block w-25 my-3 mx-auto">EDIT</button>
       <button type="submit" class="btn btn-primary setting-submit-btn d-none w-25 my-3 mx-auto">SAVE</button>
     </div>
