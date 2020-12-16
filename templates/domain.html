@@ -9,41 +9,34 @@
     {% csrf_token %}
     <thead class="thead-inverse">
       <tr>
-        <th>Dealer ID</th>
-        <th>Dealer Name</th>
-        <th>City</th>
-        <th>State</th>
-        <th>Zip</th>
+        <th>Domain</th>
         <th>Website</th>
-        <th>Redirect URLs</th>
-        <th>Category</th>
+        <th>InputData</th>
+        <th>Makes</th>
         <th>Crawl Type</th>
         <th>Comment</th>
-        <th>Test</th>
+        <th>Get Description</th>
+        <th>Redirect Urls</th>
+        <th>Action</th>
       </tr>
     </thead>
     <tbody>
       {% for row in data %}
         <tr>
-          <td><a onclick='redirect(event);' href="{% url 'domain_summary' row.domain today_date %}">{{row.dealer_id}}</a></td>
-          <td>{{row.dealer_name}}</td>
-          <td>{{row.city}}</td>
-          <td>{{row.state}}</td>
-          <td>{{row.zip}}</td>
+          <td><a onclick='redirect(event);' href="{% url 'domain_summary' row.domain today_date %}">{{row.domain}}</a></td>
           <td><a href="{{row.realurl}}" target="blank">{{row.website}}</a></td>
+          <td>{{row.domain_inputdata}}</td>
+          <td>{{row.makes}}</td>
+          <td>{{row.crawl_type}}</td>
+          <td>{{row.comment}}</td>
+          <td>{{row.get_description}}</td>
           <td>
             {% for item in row.redirect_url_list %}
               <a href="{{item}}" target="blank">{{item}}</a><br>
             {% endfor %}
           </td>
-          <td>{{row.category}}</td>
-          <td>{{row.crawl_type}}</td>
-          <td>{{row.type_reason}}</td>
-          <td class="d-flex">
-            <button class="btn btn-info {% if row.test_status == 'crawling' %} d-none {% endif %} test-btn mr-3" data-dealer="{{ row.dealer_id}}" data-name=" {{ row.dealer_name }}" data-city="{{ row.city }}" data-state="{{ row.state }}" data-zip="{{ row.zip }}" data-website="{{ row.website }}" data-category="{{ row.category }}" data-type="{{ row.crawl_type }}" data-redirect = "{{row.redirect_url}}">Test</button>
-            <button class="btn btn-danger {% if row.test_status == 'notcrawling' %} d-none {% endif %} cancel-btn mr-3" data-dealer="{{ row.dealer_id }}">Cancel</button>
-            <a onclick='redirect(event);' href="{% url 'view_test' row.dealer_id %}" class="mr-3 btn btn-success {% if row.history_status == 'nothistory' %} d-none {% endif %} view-btn" data-dealer="{{ row.dealer_id}}">View</a>
-            <button class="btn btn-info edit-btn mr-3" data-dealer="{{ row.dealer_id}}">Edit</button>
+          <td>
+            <button class="btn btn-info edit-btn " data-dealer="{{ row.domain}}">Edit</button>
           </td>
         </tr>
       {% endfor %}
@@ -66,20 +59,28 @@
           {% csrf_token %}
           <div class="modal-body">
             <div class="form-group">
-              <label for="edit_dealer_id">Dealer ID : </label>
-              <input type="text" id="edit_dealer_id" name="edit_dealer_id" class="form-control" readonly>
+              <label for="edit_domain">Domain : </label>
+              <input type="text" id="edit_domain" name="edit_domain" class="form-control" readonly>
             </div>
             <div class="form-group">
-              <label for="edit_dealer_name">Dealer Name : </label>
-              <input type="text" id="edit_dealer_name" name="edit_dealer_name" class="form-control" readonly>
+              <label for="edit_website">Website : </label>
+              <input type="text" id="edit_website" name="edit_website" class="form-control">
             </div>
             <div class="form-group">
-              <label for="edit_dealer_domain"> Website URL: </label>
-              <input type="text" id="edit_dealer_domain" name="edit_dealer_domain" class="form-control">
+              <label for="edit_inputdata"> InputData: </label>
+              <textarea type="text" id="edit_inputdata" name="edit_inputdata" class="form-control" rows="5"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="edit_makes">Makes : </label>
+              <input type="text" id="edit_makes" name="edit_makes" class="form-control">
             </div>
             <div class="form-group">
               <label for="edit_redirect_urls">Redirect URLs : </label>
               <input type="text" id="edit_redirect_urls" name="edit_redirect_urls" class="form-control">
+            </div>
+            <div class="form-group">
+              <label for="edit_crawl_type_reason">Comment: </label>
+              <input type="text" id="edit_crawl_type_reason" name="edit_crawl_type_reason" class="form-control" placeholder="Input Crawl Type Reason.">
             </div>
             <div class="form-group">
               <label for="edit_crawl_type">Crawl Type : </label>
@@ -97,8 +98,11 @@
               </select>
             </div>
             <div class="form-group">
-              <label for="edit_crawl_type_reason">Crawl Type Reason: </label>
-              <input type="text" id="edit_crawl_type_reason" name="edit_crawl_type_reason" class="form-control" placeholder="Input Crawl Type Reason.">
+              <label for="edit_get_desc">Get Description Flag : </label>
+              <select name="edit_get_desc" id="edit_get_desc" class="form-control">
+                <option value="Y">True</option>
+                <option value="N">False</option>
+              </select>
             </div>
           </div>
           <!-- Modal footer -->

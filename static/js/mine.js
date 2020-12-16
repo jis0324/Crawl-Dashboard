@@ -1,7 +1,21 @@
 $(document).ready(function () {
 
   // datatable for domains
-  $('#domains_tbl').DataTable({
+  $('#domains_tbl').removeAttr('width').DataTable({
+    "sPaginationType": "full_numbers",
+    "bJQueryUI": true,
+    "bAutoWidth": false, // Disable the auto width calculation
+    "aoColumns": [
+      { "sWidth": "10%" },
+      { "sWidth": "10%" },
+      { "sWidth": "25%" },
+      { "sWidth": "5%" },
+      { "sWidth": "10%" },
+      { "sWidth": "10%" },
+      { "sWidth": "10%" },
+      { "sWidth": "10%" },
+      { "sWidth": "10%" },
+    ]
   }).order([0, 'asc']).draw();
 
  // datatable for crawlers
@@ -9,11 +23,43 @@ $(document).ready(function () {
   }).order([0, 'desc']).draw();
 
   // datatable for inventory
-  $('#crawler_summary_tbl').DataTable({
+  $('#crawler_summary_tbl').removeAttr('width').DataTable({
+    "sPaginationType": "full_numbers",
+    "bJQueryUI": true,
+    "bAutoWidth": false, // Disable the auto width calculation
+    "aoColumns": [
+      { "sWidth": "8%" },
+      { "sWidth": "10%" },
+      { "sWidth": "25%" },
+      { "sWidth": "5%" },
+      { "sWidth": "10%" },
+      { "sWidth": "8%" },
+      { "sWidth": "7%" },
+      { "sWidth": "5%" },
+      { "sWidth": "7%" },
+      { "sWidth": "10%" },
+      { "sWidth": "5%" },
+    ]
   }).order([0, 'asc']).draw();
 
   // datatable for inventory
-  $('#total_summary_tbl').DataTable({
+  $('#total_summary_tbl').removeAttr('width').DataTable({
+    "sPaginationType": "full_numbers",
+    "bJQueryUI": true,
+    "bAutoWidth": false, // Disable the auto width calculation
+    "aoColumns": [
+      { "sWidth": "8%" },
+      { "sWidth": "10%" },
+      { "sWidth": "25%" },
+      { "sWidth": "5%" },
+      { "sWidth": "10%" },
+      { "sWidth": "8%" },
+      { "sWidth": "7%" },
+      { "sWidth": "5%" },
+      { "sWidth": "7%" },
+      { "sWidth": "10%" },
+      { "sWidth": "5%" },
+    ]
   }).order([0, 'asc']).draw();
 
   // datatable for test list
@@ -104,20 +150,22 @@ $(document).ready(function () {
   $('table').on('click', '.edit-btn', function() {
     event.preventDefault();
     show_loading();
-    let dealer_id = $(this).data('dealer');
-    $('#edit_domain_modal #edit_dealer_id').val('');
-    $('#edit_domain_modal #edit_dealer_name').val('');
-    $('#edit_domain_modal #edit_dealer_domain').val('');
+    let dealer_domain = $(this).data('dealer');
+    $('#edit_domain_modal #edit_domain').val('');
+    $('#edit_domain_modal #edit_website').val('');
+    $('#edit_domain_modal #edit_inputdata').val('');
     $('#edit_domain_modal #edit_crawl_type').val('');
     $('#edit_domain_modal #edit_crawl_type_reason').val('');
     $('#edit_domain_modal #edit_redirect_urls').val('');
+    $('#edit_domain_modal #edit_makes').val('');
+    $('#edit_domain_modal #edit_get_desc').val('');
 
     $.ajax({
       type: "POST",
       url: "/domains/get_dealer/",
       data: {
         'csrfmiddlewaretoken' : $('#edit_domain_form input[name="csrfmiddlewaretoken"]').val(),
-        'dealer_id': dealer_id,
+        'domain': dealer_domain,
       },
       success: function (result) {
         if (result == 'not_found') {
@@ -127,12 +175,18 @@ $(document).ready(function () {
         } else {
           let response = JSON.parse(result);
           
-          $('#edit_domain_modal #edit_dealer_id').val(response['dealer_id']);
-          $('#edit_domain_modal #edit_dealer_name').val(response['dealer_name']);
-          $('#edit_domain_modal #edit_dealer_domain').val(response['dealer_site']);
+          $('#edit_domain_modal #edit_domain').val(response['domain']);
+          $('#edit_domain_modal #edit_website').val(response['website']);
+          $('#edit_domain_modal #edit_inputdata').val(response['domain_inputdata']);
           $('#edit_domain_modal #edit_crawl_type').val(response['dealer_type']);
           $('#edit_domain_modal #edit_crawl_type_reason').val(response['dealer_type_reason']);
           $('#edit_domain_modal #edit_redirect_urls').val(response['dealer_redirect']);
+          $('#edit_domain_modal #edit_makes').val(response['makes']);
+          if (response['get_description'] == "") {
+            $('#edit_domain_modal #edit_get_desc').val("N");
+          } else {
+            $('#edit_domain_modal #edit_get_desc').val("Y");
+          };
 
           $('#edit_domain_modal').modal();
         }
@@ -145,22 +199,20 @@ $(document).ready(function () {
   $('#edit_domain_form').submit(function () {
     event.preventDefault();
     show_loading();
-    let dealer_id = $('#edit_domain_modal #edit_dealer_id').val();
-    let dealer_url = $('#edit_domain_modal #edit_dealer_domain').val();
-    let redirect_urls = $('#edit_domain_modal #edit_redirect_urls').val();
-    let crawl_type = $('#edit_domain_modal #edit_crawl_type').val();
-    let crawl_type_reason = $('#edit_domain_modal #edit_crawl_type_reason').val();
 
     $.ajax({
       type: "POST",
       url: "/domains/update_input/",
       data: {
         'csrfmiddlewaretoken' : $('#edit_domain_form input[name="csrfmiddlewaretoken"]').val(),
-        'dealer_id': dealer_id,
-        'dealer_url': dealer_url,
-        'redirect_urls': redirect_urls,
-        'crawl_type': crawl_type,
-        'crawl_type_reason': crawl_type_reason,
+        'domain': $('#edit_domain_modal #edit_domain').val(),
+        'website': $('#edit_domain_modal #edit_website').val(),
+        'inputdata': $('#edit_domain_modal #edit_inputdata').val(),
+        'redirect_urls': $('#edit_domain_modal #edit_redirect_urls').val(),
+        'makes': $('#edit_domain_modal #edit_makes').val(),
+        'get_description': $('#edit_domain_modal #edit_get_desc').val(),
+        'crawl_type': $('#edit_domain_modal #edit_crawl_type').val(),
+        'crawl_type_reason': $('#edit_domain_modal #edit_crawl_type_reason').val(),
       },
       success: function (result) {
         if (result == 'success') {
@@ -219,9 +271,12 @@ $(document).ready(function () {
     });
   });
 
-  $('#domains_tbl').removeClass('d-none');
-
   hide_loading();
+
+  $('#domains_tbl').removeClass('d-none');
+  $('#total_summary_tbl').removeClass('d-none');
+  $('#crawler_summary_tbl').removeClass('d-none');
+
 });
 
 function show_loading() {

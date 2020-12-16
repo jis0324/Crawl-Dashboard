@@ -4,10 +4,22 @@
 .container {
   max-width: 80%;
 }
-td, th {
-  text-align: center;
+
+table {
+  margin: 0 auto;
+  width: 100%!important;;
+  clear: both;
+  border-collapse: collapse;
+  word-break:break-word;        // add this
+  table-layout: fixed;
 }
 
+td, th {
+  white-space: normal;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  text-align: center;
+}
 
 .loading-section {
   position: fixed;

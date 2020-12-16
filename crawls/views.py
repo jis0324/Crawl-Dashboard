@@ -105,7 +105,7 @@ def get_data_from_today_log():
     return str(yesterday_date), crawl_log_data
 
 def get_data_from_summary(host, crawl_date):
-  summary_query = {"Date": {"$regex": "^" + str(crawl_date)}, "Host Address": host}
+  summary_query = {"Date": {"$regex": "^" + str(crawl_date)}, "host_address": host}
   return_data = summary_collection.find(summary_query)
   # summary_path = settings.SERVER_DIR + '/output/' + crawl_date + '/'
   #
@@ -251,34 +251,58 @@ def summary_to_dict(arg):
   return_data = list()
   for row in arg:
     temp_dict = dict()
-    temp_dict['dealer_id'] = row['Dealer ID']
-    temp_dict['dealer_name'] = row['Dealer Name']
-    temp_dict['city'] = row['City']
-    temp_dict['state'] = row['State']
-    temp_dict['zip'] = row['Zip']
-    temp_dict['domain'] = make_domain(row['Website'])
-    if row['Vin Count'] == "N/A":
+    # temp_dict['dealer_id'] = row['Dealer ID']
+    # temp_dict['dealer_name'] = row['Dealer Name']
+    # temp_dict['city'] = row['City']
+    # temp_dict['state'] = row['State']
+    # temp_dict['zip'] = row['Zip']
+    # temp_dict['domain'] = make_domain(row['Website'])
+
+    # if row['Vin Count'] == "N/A":
+    #   temp_dict['vin_count'] = '0'
+    # else:
+    #   temp_dict['vin_count'] = row['Vin Count']
+    # if 'Comment' in row:
+    #   temp_dict['comment'] = row['Comment']
+    # else:
+    #   temp_dict['comment'] = ''
+    # temp_dict['error_state'] = row['Error State']
+    # temp_dict['host_address'] = row['Host Address']
+    # if 'Elapsed Time' in row:
+    #   temp_dict['elapsed_time'] = row['Elapsed Time']
+    #   temp_dict['request_count'] = row['Request Count']
+    # else:
+    #   temp_dict['elapsed_time'] = calc_elapsed_time(row['Date'], row['End Time'])
+    #   temp_dict['request_count'] = ''
+    #
+    # temp_dict['crawler'] = row['Host Address']
+    #
+    # if not temp_dict["domain"]:
+    #   continue
+
+    temp_dict['domain'] = row['domain']
+    temp_dict['website'] = row['website']
+    temp_dict['domain_inputdata'] = row['domain_inputdata']
+    temp_dict['makes'] = row['makes']
+    temp_dict['domain'] = row['domain']
+    if row['vin_count'] == "N/A":
       temp_dict['vin_count'] = '0'
     else:
-      temp_dict['vin_count'] = row['Vin Count']
-    if 'Comment' in row:
-      temp_dict['comment'] = row['Comment']
+      temp_dict['vin_count'] = row['vin_count']
+    if 'comment' in row:
+      temp_dict['comment'] = row['comment']
     else:
       temp_dict['comment'] = ''
-    temp_dict['error_state'] = row['Error State']
-    temp_dict['host_address'] = row['Host Address']
-    if 'Elapsed Time' in row:
-      temp_dict['elapsed_time'] = row['Elapsed Time']
-      temp_dict['request_count'] = row['Request Count']
+    temp_dict['error_state'] = row['error_state']
+    if 'elapsed_time' in row:
+      temp_dict['elapsed_time'] = row['elapsed_time']
+      temp_dict['request_count'] = row['request_count']
     else:
       temp_dict['elapsed_time'] = calc_elapsed_time(row['Date'], row['End Time'])
       temp_dict['request_count'] = ''
 
-    temp_dict['crawler'] = row['Host Address']
-
-    if not temp_dict["domain"]:
-      continue
-
+    temp_dict['crawler'] = row['host_address']
+    temp_dict['crawl_success_page_count'] = row['crawl_success_page_count']
     return_data.append(temp_dict)
 
   return return_data

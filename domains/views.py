@@ -19,10 +19,9 @@ def index(request):
     with open(settings.SERVER_DIR + '/input.csv', 'r', encoding="latin1", errors="ignore") as summary:
       domain_list = list(csv.DictReader(summary))
   
-  test_data = Test.objects.all()
-  data = input_to_dict(domain_list, test_data)
+  data = input_to_dict(domain_list)
 
-  return render(request, 'domain.html', {'data': data, 'test_data': test_data, 'today_date' : today_date})
+  return render(request, 'domain.html', {'data': data, 'today_date': today_date})
 
 @login_required
 def domain_summary(request, domain, crawl_date):
@@ -154,19 +153,21 @@ def test_detail(request, dealer_id, id):
 def get_dealer(request):
   if request.method == 'POST':
     try:
-      dealer_id = request.POST['dealer_id']
+      domain = request.POST['domain']
       if os.path.isfile(settings.SERVER_DIR + '/input.csv'):
         with open(settings.SERVER_DIR + '/input.csv', 'r', encoding="latin1", errors="ignore") as summary:
           dealer_list = csv.DictReader(summary)
           for dealer in dealer_list:
-            if dealer['Dealer ID'] == dealer_id:
+            if dealer['domain'] == domain:
               return_dict = {
-                'dealer_id' : dealer['Dealer ID'],
-                'dealer_name' : dealer['Dealer Name'],
-                'dealer_site' : dealer['Website'],
-                'dealer_type' : dealer['Crawl Type'],
-                'dealer_type_reason' : dealer['Comment'],
-                'dealer_redirect' : dealer['Redirect URLs'],
+                'domain': dealer['domain'],
+                'website': dealer['website'],
+                'domain_inputdata': dealer['domain_inputdata'],
+                'dealer_type': dealer['crawl_type'],
+                'dealer_type_reason': dealer['comment'],
+                'dealer_redirect': dealer['redirect_urls'],
+                'makes': dealer['makes'],
+                'get_description': dealer['get_description'],
               }
               return HttpResponse(json.dumps(return_dict))
       return HttpResponse('not_found')
@@ -178,11 +179,14 @@ def get_dealer(request):
 def update_input(request):
   if request.method == 'POST':
     try:
-      dealer_id = request.POST['dealer_id']
-      dealer_url = request.POST['dealer_url']
+      domain = request.POST['domain']
+      website = request.POST['website']
+      inputdata = request.POST['inputdata']
       redirect_urls = request.POST['redirect_urls']
-      dealer_type = request.POST['crawl_type']
-      dealer_reason = request.POST['crawl_type_reason']
+      crawl_type = request.POST['crawl_type']
+      comment = request.POST['crawl_type_reason']
+      makes = request.POST['makes']
+      get_description = request.POST['get_description']
 
       if os.path.isfile(settings.SERVER_DIR + '/input.csv'):
         temp_list = list()
@@ -190,55 +194,57 @@ def update_input(request):
           temp_list = list(csv.DictReader(input_file))
 
         with open(settings.SERVER_DIR + '/input.csv', 'w', encoding="latin1", errors="ignore") as input_file:
-          fieldnames = ["Dealer ID", "Dealer Name", "City", "State", "Zip", "Website", "Category", "Crawl Type", "Comment", "Redirect URLs"]
+          fieldnames = ["domain", "website", "domain_inputdata", "makes", "crawl_type", "comment", "redirect_urls", "get_description"]
           writer = csv.DictWriter(input_file, fieldnames=fieldnames)
           writer.writeheader()
           for row_dict in temp_list:
-            if row_dict["Dealer ID"] == dealer_id:
-              row_dict["Website"] = dealer_url
-              row_dict["Crawl Type"] = dealer_type
-              row_dict["Comment"] = dealer_reason
-              row_dict["Redirect URLs"] = redirect_urls
+            if row_dict["domain"] == domain:
+              row_dict["website"] = website
+              row_dict["domain_inputdata"] = inputdata
+              row_dict["crawl_type"] = crawl_type
+              row_dict["comment"] = comment
+              row_dict["redirect_urls"] = redirect_urls
+              row_dict["makes"] = makes
+              if get_description == "Y":
+                row_dict["get_description"] = "Y"
+              else:
+                row_dict["get_description"] = ""
+
             writer.writerow(row_dict)
       return HttpResponse('success')
     except Exception as err:
       print(err)
       return HttpResponse('failed')
 
-def input_to_dict(arg1, arg2):
+def input_to_dict(arg1):
   return_data = list()
   for row in arg1:
     temp_dict = dict()
-    temp_dict['dealer_id'] = row['Dealer ID']
-    temp_dict['dealer_name'] = row['Dealer Name']
-    temp_dict['city'] = row['City']
-    temp_dict['state'] = row['State']
-    temp_dict['zip'] = row['Zip']
-    temp_dict['website'] = row['Website']
-    temp_dict['domain'] = make_domain(row['Website'])
-    temp_dict['realurl'] = make_url(row['Website'])
-    temp_dict['category'] = row['Category']
-    temp_dict['crawl_type'] = row['Crawl Type']
-    temp_dict['type_reason'] = row['Comment']
-    temp_dict['redirect_url'] = row['Redirect URLs']
+    temp_dict['domain'] = row['domain']
+    temp_dict['website'] = row['website']
+    temp_dict['domain_inputdata'] = row['domain_inputdata']
+    temp_dict['makes'] = row['makes']
+    temp_dict['crawl_type'] = row['crawl_type']
+    temp_dict['comment'] = row['comment']
+    temp_dict['get_description'] = make_url(row['get_description'])
 
     redirect_list = list()
-    if row['Redirect URLs']:
-      for item in row['Redirect URLs'].split(','):
+    if row['redirect_urls']:
+      for item in row['redirect_urls'].split(','):
         redirect_list.append(make_url(item))
     temp_dict['redirect_url_list'] = redirect_list
-    
-    test_status = 'notcrawling'
-    history_status = 'nothistory'
-    for item in arg2:
-      if item.dealer == row['Dealer ID']:
-        if item.status == 'crawling':
-          test_status = 'crawling'
-        if item.status == 'complete' or item.status == 'cancel':
-          history_status = 'history'
 
-    temp_dict['test_status'] = test_status
-    temp_dict['history_status'] = history_status
+    # test_status = 'notcrawling'
+    # history_status = 'nothistory'
+    # for item in arg2:
+    #   if item.dealer == row['Dealer ID']:
+    #     if item.status == 'crawling':
+    #       test_status = 'crawling'
+    #     if item.status == 'complete' or item.status == 'cancel':
+    #       history_status = 'history'
+    #
+    # temp_dict['test_status'] = test_status
+    # temp_dict['history_status'] = history_status
 
     if temp_dict["domain"]:
       return_data.append(temp_dict)
