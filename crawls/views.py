@@ -44,7 +44,7 @@ def view_summary(request, host, crawl_date):
   else:
     crawl_summary_data = get_data_from_summary(host, crawl_date)
   
-  data = summary_to_dict(crawl_summary_data)
+  data = summary_to_dict(crawl_summary_data, crawl_date)
   return render(request, 'crawler_summary.html', {'data': data, 'today_date': today_date, 'crawl_date': crawl_date, 'host_name': host})
 
 @login_required
@@ -74,7 +74,7 @@ def total_summary(request, crawl_date):
   else:
     crawl_summary_data = get_total_summary(crawl_date)
 
-  data = summary_to_dict(crawl_summary_data)
+  data = summary_to_dict(crawl_summary_data, crawl_date)
 
   return render(request, 'total_summary.html', {'data': data, 'today_date': today_date, 'crawl_date': crawl_date, 'host_name': settings.SERVER_HOST})
 
@@ -105,67 +105,75 @@ def get_data_from_today_log():
     return str(yesterday_date), crawl_log_data
 
 def get_data_from_summary(host, crawl_date):
+  return_data = list()
   summary_query = {"Date": {"$regex": "^" + str(crawl_date)}, "host_address": host}
-  return_data = summary_collection.find(summary_query)
-  # summary_path = settings.SERVER_DIR + '/output/' + crawl_date + '/'
-  #
-  # if os.path.exists(summary_path):
-  #   summary_csv_prefix = 'summary_' + crawl_date
-  #   crawl_summary_data = list()
-  #   files = []
-  #   files = [i for i in os.listdir(summary_path) if os.path.isfile(os.path.join(summary_path,i)) and summary_csv_prefix in i]
-  #   if files:
-  #     summary_file = files[-1]
-  #     with open(summary_path + summary_file, 'r', encoding="latin1", errors="ignore") as summary:
-  #       crawl_summary_data = list(csv.DictReader(summary))
-  #
-  #   for row in crawl_summary_data:
-  #     if row['Host Address'] == host:
-  #       return_data.append(row)
+  if summary_collection.count_documents(summary_query):
+    return_data = summary_collection.find(summary_query)
+  else:
+    summary_path = settings.SERVER_DIR + '/output/' + crawl_date + '/'
+
+    if os.path.exists(summary_path):
+      summary_csv_prefix = 'summary_' + crawl_date
+      crawl_summary_data = list()
+      files = []
+      files = [i for i in os.listdir(summary_path) if os.path.isfile(os.path.join(summary_path,i)) and summary_csv_prefix in i]
+      if files:
+        summary_file = files[-1]
+        with open(summary_path + summary_file, 'r', encoding="latin1", errors="ignore") as summary:
+          crawl_summary_data = list(csv.DictReader(summary))
+
+      for row in crawl_summary_data:
+        if crawl_date > "2020-12-07":
+          if row["host_address"] == host:
+            return_data.append(row)
+        else:
+          if row['Host Address'] == host:
+            return_data.append(row)
   return return_data
 
 def get_data_from_inventory(host, crawl_date, domain):
   return_data = list()
-  # summary_path = settings.SERVER_DIR + '/output/' + crawl_date + '/'
-  #
-  # if os.path.exists(summary_path):
-  #   summary_csv_prefix = 'inventory_' + crawl_date
-  #   crawl_inventory_data = list()
-  #   files = []
-  #   files = [i for i in os.listdir(summary_path) if os.path.isfile(os.path.join(summary_path,i)) and summary_csv_prefix in i]
-  #   if files:
-  #     summary_file = files[-1]
-  #
-  #     with open(summary_path + summary_file, 'r', encoding="latin1", errors="ignore") as summary:
-  #       crawl_inventory_data = list(csv.DictReader(summary))
-  #
-  #   for row in crawl_inventory_data:
-  #     if 'DOMAIN' in row:
-  #       if row['DOMAIN'] == domain:
-  #         return_data.append(row)
-  #     elif 'Domain' in row:
-  #       if row['Domain'] == domain:
-  #         return_data.append(row)
+  inventory_query = {"Date": {"$regex": "^" + str(crawl_date)}, "host_address": host, "domain": domain}
+  if inventory_collection.count_documents(inventory_query):
+    return_data = inventory_collection.find(inventory_query)
+  else:
+    inventory_path = settings.SERVER_DIR + '/output/' + crawl_date + '/'
 
-  inventory_query = {"Date": {"$regex": "^" + str(crawl_date)}, "Host Address": host, "Domain": domain}
-  return_data = inventory_collection.find(inventory_query)
+    if os.path.exists(inventory_path):
+      summary_csv_prefix = 'inventory_' + crawl_date
+      crawl_inventory_data = list()
+      files = []
+      files = [i for i in os.listdir(inventory_path) if os.path.isfile(os.path.join(inventory_path,i)) and summary_csv_prefix in i]
+      if files:
+        summary_file = files[-1]
+
+        with open(inventory_path + summary_file, 'r', encoding="latin1", errors="ignore") as summary:
+          crawl_inventory_data = list(csv.DictReader(summary))
+
+      for row in crawl_inventory_data:
+        if 'doamin' in row:
+          if row['doamin'] == domain:
+            return_data.append(row)
+
   return return_data
 
 def get_total_summary(crawl_date):
   return_data = list()
-  # summary_path = settings.SERVER_DIR + '/output/' + crawl_date + '/'
-  #
-  # if os.path.exists(summary_path):
-  #   summary_csv_prefix = 'summary_' + crawl_date
-  #   files = []
-  #   files = [i for i in os.listdir(summary_path) if os.path.isfile(os.path.join(summary_path,i)) and summary_csv_prefix in i]
-  #   if files:
-  #     summary_file = files[-1]
-  #     with open(summary_path + summary_file, 'r', encoding="latin1", errors="ignore") as summary:
-  #       return_data = list(csv.DictReader(summary))
-
   total_summary_query = {"Date": {"$regex": "^" + str(crawl_date)}}
-  return_data = summary_collection.find(total_summary_query)
+  if summary_collection.count_documents(total_summary_query):
+    return_data = summary_collection.find(total_summary_query)
+  else:
+    summary_path = settings.SERVER_DIR + '/output/' + crawl_date + '/'
+
+    if os.path.exists(summary_path):
+      summary_csv_prefix = 'summary_' + crawl_date
+      files = []
+      files = [i for i in os.listdir(summary_path) if
+               os.path.isfile(os.path.join(summary_path, i)) and summary_csv_prefix in i]
+      if files:
+        summary_file = files[-1]
+        with open(summary_path + summary_file, 'r', encoding="latin1", errors="ignore") as summary:
+          return_data = list(csv.DictReader(summary))
   return return_data
 
 def log_to_dict(arg):
@@ -247,62 +255,68 @@ def make_domain(url):
   except:
     return url.lower()
 
-def summary_to_dict(arg):
+def summary_to_dict(arg, crawl_date):
   return_data = list()
   for row in arg:
     temp_dict = dict()
-    # temp_dict['dealer_id'] = row['Dealer ID']
-    # temp_dict['dealer_name'] = row['Dealer Name']
-    # temp_dict['city'] = row['City']
-    # temp_dict['state'] = row['State']
-    # temp_dict['zip'] = row['Zip']
-    # temp_dict['domain'] = make_domain(row['Website'])
+    if crawl_date > "2020-12-07":
+      temp_dict['domain'] = row['domain']
+      temp_dict['website'] = row['website']
+      temp_dict['domain_inputdata'] = row['domain_inputdata']
+      temp_dict['makes'] = row['makes']
 
-    # if row['Vin Count'] == "N/A":
-    #   temp_dict['vin_count'] = '0'
-    # else:
-    #   temp_dict['vin_count'] = row['Vin Count']
-    # if 'Comment' in row:
-    #   temp_dict['comment'] = row['Comment']
-    # else:
-    #   temp_dict['comment'] = ''
-    # temp_dict['error_state'] = row['Error State']
-    # temp_dict['host_address'] = row['Host Address']
-    # if 'Elapsed Time' in row:
-    #   temp_dict['elapsed_time'] = row['Elapsed Time']
-    #   temp_dict['request_count'] = row['Request Count']
-    # else:
-    #   temp_dict['elapsed_time'] = calc_elapsed_time(row['Date'], row['End Time'])
-    #   temp_dict['request_count'] = ''
-    #
-    # temp_dict['crawler'] = row['Host Address']
-    #
-    # if not temp_dict["domain"]:
-    #   continue
+      if row['vin_count'] == "N/A":
+        temp_dict['vin_count'] = '0'
+      else:
+        temp_dict['vin_count'] = row['vin_count']
+      if 'comment' in row:
+        temp_dict['comment'] = row['comment']
+      else:
+        temp_dict['comment'] = ''
+      temp_dict['error_state'] = row['error_state']
+      if 'elapsed_time' in row:
+        temp_dict['elapsed_time'] = row['elapsed_time']
+        temp_dict['request_count'] = row['request_count']
+      else:
+        temp_dict['elapsed_time'] = calc_elapsed_time(row['Date'], row['End Time'])
+        temp_dict['request_count'] = ''
 
-    temp_dict['domain'] = row['domain']
-    temp_dict['website'] = row['website']
-    temp_dict['domain_inputdata'] = row['domain_inputdata']
-    temp_dict['makes'] = row['makes']
-    temp_dict['domain'] = row['domain']
-    if row['vin_count'] == "N/A":
-      temp_dict['vin_count'] = '0'
-    else:
-      temp_dict['vin_count'] = row['vin_count']
-    if 'comment' in row:
-      temp_dict['comment'] = row['comment']
-    else:
-      temp_dict['comment'] = ''
-    temp_dict['error_state'] = row['error_state']
-    if 'elapsed_time' in row:
-      temp_dict['elapsed_time'] = row['elapsed_time']
-      temp_dict['request_count'] = row['request_count']
-    else:
-      temp_dict['elapsed_time'] = calc_elapsed_time(row['Date'], row['End Time'])
-      temp_dict['request_count'] = ''
+      temp_dict['crawler'] = row['host_address']
 
-    temp_dict['crawler'] = row['host_address']
-    temp_dict['crawl_success_page_count'] = row['crawl_success_page_count']
+      if "crawl_success_page_count" in row:
+        temp_dict['crawl_success_page_count'] = row['crawl_success_page_count']
+      else:
+        temp_dict["crawl_success_page_count"] = ""
+    else:
+      temp_dict['domain'] = make_domain(row['Website'])
+      temp_dict['website'] = row['Website']
+      temp_dict['domain_inputdata'] = ""
+      temp_dict['makes'] = ""
+
+      if row['Vin Count'] == "N/A":
+        temp_dict['vin_count'] = '0'
+      else:
+        temp_dict['vin_count'] = row['Vin Count']
+      if 'Comment' in row:
+        temp_dict['comment'] = row['Comment']
+      else:
+        temp_dict['comment'] = ''
+      temp_dict['error_state'] = row['Error State']
+      temp_dict['host_address'] = row['Host Address']
+      if 'Elapsed Time' in row:
+        temp_dict['elapsed_time'] = row['Elapsed Time']
+        temp_dict['request_count'] = row['Request Count']
+      else:
+        temp_dict['elapsed_time'] = calc_elapsed_time(row['Date'], row['End Time'])
+        temp_dict['request_count'] = ''
+
+      temp_dict['crawler'] = row['Host Address']
+      temp_dict['crawl_success_page_count'] = ""
+
+      if not temp_dict["domain"]:
+        continue
+
+
     return_data.append(temp_dict)
 
   return return_data
@@ -310,28 +324,25 @@ def summary_to_dict(arg):
 def inventory_to_dict(arg):
   return_data = list()
   for row in arg:
-    temp_dict = dict()
-    temp_dict['dealer_id'] = row['Dealer ID']
-    temp_dict['dealer_name'] = row['Dealer Name']
+    try:
+      temp_dict = dict()
+      temp_dict['domain'] = row['domain']
+      temp_dict['website'] = row['website']
+      temp_dict['inputdata'] = row['domain_inputdata']
+      temp_dict['vin'] = row['vin']
+      temp_dict['price'] = row['price']
+      temp_dict['mileage'] = row['mileage']
+      temp_dict['type'] = row['type']
+      temp_dict['title'] = row['title']
+      temp_dict['year'] = row['year']
+      temp_dict['make'] = row['make']
+      temp_dict['model'] = row['model']
+      temp_dict['trim'] = row['trim']
+      temp_dict['description'] = row['description']
 
-    if "DOMAIN" in row:
-      temp_dict['domain'] = row['DOMAIN']
-      temp_dict['url'] = ''
-    else:
-      temp_dict['url'] = row['URL']
-      temp_dict['domain'] = row['Domain']
+      return_data.append(temp_dict)
+    except Exception as err:
+      print(err)
+      print(row)
 
-    temp_dict['vin'] = row['VIN']
-    temp_dict['price'] = row['Price']
-    temp_dict['mileage'] = row['Mileage']
-    temp_dict['type'] = row['Type']
-    temp_dict['title'] = row['Title']
-    temp_dict['year'] = row['Year']
-    temp_dict['make'] = row['Make']
-    temp_dict['model'] = row['Model']
-    temp_dict['trim'] = row['Trim']
-    temp_dict['description'] = row['Description']
-    
-    return_data.append(temp_dict)
-    
   return return_data

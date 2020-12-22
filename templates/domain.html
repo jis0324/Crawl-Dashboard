@@ -24,7 +24,7 @@
       {% for row in data %}
         <tr>
           <td><a onclick='redirect(event);' href="{% url 'domain_summary' row.domain today_date %}">{{row.domain}}</a></td>
-          <td><a href="{{row.realurl}}" target="blank">{{row.website}}</a></td>
+          <td><a href="{{row.website}}" target="blank">{{row.website}}</a></td>
           <td>{{row.domain_inputdata}}</td>
           <td>{{row.makes}}</td>
           <td>{{row.crawl_type}}</td>

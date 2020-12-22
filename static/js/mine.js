@@ -67,7 +67,25 @@ $(document).ready(function () {
   }).order([0, 'asc']).draw();
 
   // datatable for inventory
-  $('#crawler_inventory_tbl').DataTable({
+  $('#crawler_inventory_tbl').removeAttr('width').DataTable({
+    "sPaginationType": "full_numbers",
+    "bJQueryUI": true,
+    "bAutoWidth": false, // Disable the auto width calculation
+    "aoColumns": [
+      { "sWidth": "8%" },
+      { "sWidth": "10%" },
+      { "sWidth": "20%" },
+      { "sWidth": "7%" },
+      { "sWidth": "5%" },
+      { "sWidth": "5%" },
+      { "sWidth": "5%" },
+      { "sWidth": "15%" },
+      { "sWidth": "5%" },
+      { "sWidth": "5%" },
+      { "sWidth": "5%" },
+      { "sWidth": "5%" },
+      { "sWidth": "5%" },
+    ]
   }).order([0, 'asc']).draw();
 
   // datatable for inventory

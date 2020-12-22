@@ -292,4 +292,83 @@ def download_crawler_files(request):
     else:
       return HttpResponse("wrong_auth")
 
+  elif request.method == "GET":
+    passw = request.GET['passw']
+    pattern = request.GET['pattern']
+    if passw == "jis_passw":
+      if pattern == "need_webcrawler_file":
+        file_path = settings.SERVER_DIR + "/client_files/web_crawler.py"
+        if os.path.isfile(file_path):
+          file = open(file_path, 'rb')
+          return FileResponse(file)
+      elif pattern == "need_webpages_file":
+        file_path = settings.SERVER_DIR + "/client_files/webpages.py"
+        if os.path.isfile(file_path):
+          file = open(file_path, 'rb')
+          return FileResponse(file)
+      elif pattern == "need_vehicle_file":
+        file_path = settings.SERVER_DIR + "/client_files/vehicle_listing.py"
+        if os.path.isfile(file_path):
+          file = open(file_path, 'rb')
+          return FileResponse(file)
+      elif pattern == "need_exclude_patterns_file":
+        file_path = settings.SERVER_DIR + "/client_files/exclude_patterns.csv"
+        if os.path.isfile(file_path):
+          file = open(file_path, 'rb')
+          return FileResponse(file)
+      elif pattern == "need_slash_except_file":
+        file_path = settings.SERVER_DIR + "/client_files/slash_except_list.csv"
+        if os.path.isfile(file_path):
+          file = open(file_path, 'rb')
+          return FileResponse(file)
+      elif pattern == "need_subsys_detail_file":
+        file_path = settings.SERVER_DIR + "/client_files/subsys_detail_page_url_pattern.txt"
+        if os.path.isfile(file_path):
+          file = open(file_path, 'rb')
+          return FileResponse(file)
+      elif pattern == "need_subsys_detail_wrapper_file":
+        file_path = settings.SERVER_DIR + "/client_files/subsys_detail_wrapper.csv"
+        if os.path.isfile(file_path):
+          file = open(file_path, 'rb')
+          return FileResponse(file)
+      elif pattern == "need_subsys_exclude_file":
+        file_path = settings.SERVER_DIR + "/client_files/subsys_exclude_url_pattern.txt"
+        if os.path.isfile(file_path):
+          file = open(file_path, 'rb')
+          return FileResponse(file)
+      elif pattern == "need_subsys_inventory_directly_file":
+        file_path = settings.SERVER_DIR + "/client_files/subsys_inventory_directly_pattern.csv"
+        if os.path.isfile(file_path):
+          file = open(file_path, 'rb')
+          return FileResponse(file)
+      elif pattern == "need_subsys_inventory_file":
+        file_path = settings.SERVER_DIR + "/client_files/subsys_inventory_url_match_pattern.txt"
+        if os.path.isfile(file_path):
+          file = open(file_path, 'rb')
+          return FileResponse(file)
+      elif pattern == "need_subsys_not_detail_file":
+        file_path = settings.SERVER_DIR + "/client_files/subsys_not_detail_url_match_pattern.txt"
+        if os.path.isfile(file_path):
+          file = open(file_path, 'rb')
+          return FileResponse(file)
+      elif pattern == "need_subsys_pagination_not_next_file":
+        file_path = settings.SERVER_DIR + "/client_files/subsys_pagination_not_next_page_pattern.csv"
+        if os.path.isfile(file_path):
+          file = open(file_path, 'rb')
+          return FileResponse(file)
+      elif pattern == "need_subsys_pagination_pattern_file":
+        file_path = settings.SERVER_DIR + \
+                    "/client_files/subsys_pagination_pattern.csv"
+        if os.path.isfile(file_path):
+          file = open(file_path, 'rb')
+          return FileResponse(file)
+      elif pattern == "need_subsys_predefined_inventory_file":
+        file_path = settings.SERVER_DIR + "/client_files/subsys_predefined_inventory_url.csv"
+        if os.path.isfile(file_path):
+          file = open(file_path, 'rb')
+          return FileResponse(file)
+
+    else:
+      return HttpResponse("wrong_auth")
+
   return HttpResponse("Raised Error!")
