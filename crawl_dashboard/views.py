@@ -145,6 +145,9 @@ def modify_crawl_status_data(crawl_status_data, crawling_date):
   if "Start Time" in crawl_status_data:
     temp_dict['start_time'] = crawl_status_data["Start Time"]
 
+  if "start_time" not in temp_dict:
+    temp_dict["start_time"] = crawl_status_data["Date"]
+
   if "Completed Time" in crawl_status_data:
     temp_dict['end_time'] = crawl_status_data["Completed Time"]
 

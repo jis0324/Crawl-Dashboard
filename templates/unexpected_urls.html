@@ -17,8 +17,6 @@
     <thead class="thead-inverse">
       <tr>
         <th>Time</th>
-        <th>Dealer ID</th>
-        <th>Dealer Name</th>
         <th>Dealer Domain</th>
         <th>Host</th>
       </tr>
@@ -27,9 +25,7 @@
       {% for row in data %}
         <tr>
           <td>{{row.time}}</td>
-          <td>{{row.dealer_id}}</td>
-          <td>{{row.dealer_name}}</td>
-          <td>{{row.dealer_domain}}</td>
+          <td>{{row.website}}</td>
           <td>{{row.host}}</td>
         </tr>
       {% endfor %}

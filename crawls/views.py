@@ -329,6 +329,7 @@ def inventory_to_dict(arg):
       temp_dict['domain'] = row['domain']
       temp_dict['website'] = row['website']
       temp_dict['inputdata'] = row['domain_inputdata']
+      temp_dict['link'] = row['link']
       temp_dict['vin'] = row['vin']
       temp_dict['price'] = row['price']
       temp_dict['mileage'] = row['mileage']

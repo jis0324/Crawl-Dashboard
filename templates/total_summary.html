@@ -40,7 +40,7 @@
     <tbody>
       {% for row in data %}
         <tr>
-          <td><a onclick='redirect(event);' href="{% url 'crawl_inventory' host_name crawl_date row.domain %}">{{ row.domain }}</a></td>
+          <td><a onclick='redirect(event);' href="{% url 'crawl_inventory' row.crawler crawl_date row.domain %}">{{ row.domain }}</a></td>
           <td><a href="{{row.website}}" target="blank" alt="To Inventory">{{ row.website }}</a></td>
           <td>{{ row.domain_inputdata }}</td>
           <td>{{ row.vin_count }}</td>
